@@ -1,31 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import React, { useState } from 'react';
-
-// 学習完了ボタンコンポーネント
-const CompleteButton = () => {
-  const [isCompleted, setIsCompleted] = useState(false);
-
-  return (
-    <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200 text-center">
-      {!isCompleted ? (
-        <div>
-          <p className="mb-4 text-lg font-bold text-gray-700">今日の練習問題は終わりましたか？</p>
-          <button 
-            onClick={() => setIsCompleted(true)}
-            className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
-          >
-            完成ボタン
-          </button>
-        </div>
-      ) : (
-        <div>
-          <p className="text-2xl font-bold text-green-600">すごい！完成です！</p>
-          <p className="mt-2 text-gray-600">お家の人にノートを見せて、今日の学習を報告しよう！</p>
-        </div>
-      )}
-    </div>
-  );
-};
 
 // Appコンポーネントの中で呼び出してください
 // <CompleteButton /> を使いたい場所に書くだけでOKです
