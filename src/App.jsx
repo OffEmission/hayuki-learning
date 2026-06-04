@@ -1,4 +1,3 @@
-```react
 import React, { useState, useEffect, useRef } from 'react';
 
 // --- DATA DEFINITION FOR LESSON 10 ---
@@ -174,8 +173,6 @@ export default function App() {
   const [quizAnswers, setQuizAnswers] = useState({});
   const [gameFeedback, setGameFeedback] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
-
-  const geminiApiKey = "";
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -595,115 +592,75 @@ export default function App() {
   const renderTaskContent = () => {
     if (!selectedTask) {
       return (
-        <div className="flex flex-col items-center justify-center p-8 text-center bg-white rounded-2xl shadow-sm border border-indigo-100">
-          <span className="text-7xl mb-4">✈️</span>
-          <h3 className="text-xl font-bold text-slate-800 mb-2">{"請選擇第 " + currentDay + " 天的學習任務！"}</h3>
-          <p className="text-slate-600 text-sm">點選左側清單中的任務開始學習。別忘了啟動計時器喔！</p>
-          <button onClick={() => { setTimerActive(true); updateTutor("那我們開始學習吧！加油！"); }}
-            className={"mt-6 px-6 py-3 rounded-full font-bold text-white shadow-md " + (timerActive ? "bg-emerald-500" : "bg-indigo-500")}
-          >{timerActive ? "⏱️ 計時器運行中..." : "⏱️ 開始今日學習！"}</button>
+        <div className="flex flex-col items-center justify-center h-64 text-slate-400 gap-4">
+          <span className="text-6xl">🚀</span>
+          <p className="text-lg font-bold">請從左側選擇今天的學習任務！</p>
         </div>
       );
     }
 
-    if (selectedTask.type === "read") return renderReadTask(TEXTBOOK_PAGES[selectedTask.target], selectedTask.id);
-    if (selectedTask.type === "game" || selectedTask.type === "grammar") return renderInteractiveGame();
-    if (selectedTask.type === "notebook") return renderNotebookTask();
-
-    if (selectedTask.type === "vocab" || selectedTask.type === "vocab_all") {
-      const targetIndices = selectedTask.type === "vocab_all" ? [0,1,2,3,4,5,6,7,8,9,10,11] : selectedTask.target;
-      return (
-        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-100 space-y-6">
-          <div className="flex justify-between items-center border-b pb-4">
-            <h3 className="text-lg font-bold text-indigo-800">✨ 今日生字詞卡</h3>
-            <button onClick={() => toggleTaskCompletion(selectedTask.id)} className={"px-4 py-2 rounded-full text-xs font-bold " + (completedTasks[selectedTask.id] ? "bg-emerald-100 text-emerald-800" : "bg-indigo-100 text-indigo-800")}>
-              {completedTasks[selectedTask.id] ? "✅ 詞彙全部記住囉" : "🎴 記住後請點選！"}
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {targetIndices.map((idx) => {
-              const item = VOCABULARY[idx];
-              return (
-                <div key={idx} onClick={() => { setSelectedCard(idx); speakText(item.char, "zh-TW"); }}
-                  className={"p-4 rounded-xl border-2 cursor-pointer hover:-translate-y-1 " + (selectedCard === idx ? "border-indigo-500 bg-indigo-50" : "border-slate-100 bg-white")}
-                >
-                  <div className="flex justify-between items-start">
-                    <span className="text-2xl font-bold text-slate-800">{item.char}</span>
-                    <span className="text-xs font-semibold px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">{"注音: " + item.zhuyin}</span>
-                  </div>
-                  <p className="text-sm text-emerald-700 font-bold mt-2 border-t pt-2 border-dashed">{item.meaning}</p>
-                  <div className="mt-2 text-xs text-slate-500 bg-slate-50 p-2 rounded"><p className="italic">{'"' + item.example + '"'}</p></div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      );
+    switch (selectedTask.type) {
+      case 'read': return renderReadTask(TEXTBOOK_PAGES[selectedTask.target], selectedTask.id);
+      case 'game': return renderInteractiveGame();
+      case 'notebook': return renderNotebookTask();
+      default: return <div>請完成任務！</div>;
     }
-    return null;
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-indigo-200">
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center flex-wrap gap-4">
-          <div className="flex items-center gap-2"><span className="text-2xl">🌍</span>
-            <div><h1 className="text-lg font-extrabold text-indigo-700">飛行員與小王子 ‧ 六日中文營</h1><p className="text-xs text-slate-500">國小四年級互動程式 (第十課)</p></div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-200">
-              <span className="text-sm">⏱️</span><span className="font-mono font-bold text-indigo-700">{formatTime(studyTime)}</span>
-              <button onClick={() => setTimerActive(!timerActive)} className={"text-xs font-bold px-2.5 py-1 rounded-full text-white " + (timerActive ? "bg-amber-500" : "bg-emerald-500")}>{timerActive ? "暫停" : "開始"}</button>
-            </div>
-            <div className="bg-yellow-50 text-yellow-800 px-3 py-1.5 rounded-full border border-yellow-200 font-bold text-sm">{"⭐ 得分: " + score}</div>
-          </div>
+    <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row">
+      {/* Sidebar */}
+      <nav className="w-full md:w-80 bg-white border-r p-6 overflow-y-auto">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-indigo-900">第 10 課：飛行員與小王子</h1>
+          <p className="text-sm text-indigo-600 font-semibold mt-1">六日學習導航系統</p>
         </div>
-      </header>
+        <div className="space-y-4">
+          {DAILY_PLANS.map((dayPlan) => (
+            <button key={dayPlan.day} onClick={() => { setCurrentDay(dayPlan.day); setSelectedTask(null); }}
+              className={"w-full text-left p-4 rounded-xl font-bold transition " + (currentDay === dayPlan.day ? "bg-indigo-600 text-white shadow-lg" : "bg-slate-50 text-slate-700 hover:bg-indigo-50")}
+            >
+              <div className="text-sm mb-1">{dayPlan.title}</div>
+            </button>
+          ))}
+        </div>
+      </nav>
 
-      <div className="max-w-7xl mx-auto w-full px-4 py-4">
-        <div className="bg-gradient-to-r from-indigo-500 to-sky-400 rounded-2xl p-4 text-white shadow-sm flex items-center gap-4 border-2 border-indigo-300">
-          <div className="text-3xl bg-white/20 p-2 rounded-full shadow-inner">👨‍🚀</div>
-          <div className="flex-1"><p className="text-xs font-bold text-indigo-100">AI 老師的溫馨提示</p><p className="text-sm font-bold mt-1 leading-relaxed">{tutorMessage}</p></div>
-          <button onClick={() => speakText(tutorMessage, "zh-TW")} className="px-3 py-1 bg-white/30 text-xs font-bold rounded-lg hover:bg-white/40">🔊 聽提示</button>
+      {/* Main Area */}
+      <main className="flex-1 p-6 md:p-10 overflow-y-auto">
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Day Header */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h2 className="text-2xl font-bold text-slate-800">{DAILY_PLANS[currentDay - 1].title}</h2>
+            <p className="text-slate-600 mt-2">{DAILY_PLANS[currentDay - 1].description}</p>
+          </div>
+
+          {/* Task Selection */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {DAILY_PLANS[currentDay - 1].tasks.map((task) => (
+              <button key={task.id} onClick={() => setSelectedTask(task)}
+                className={"p-4 rounded-xl border-2 text-sm font-bold flex flex-col items-center gap-2 transition " + (completedTasks[task.id] ? "bg-emerald-50 border-emerald-500 text-emerald-800" : "bg-white hover:border-indigo-400")}
+              >
+                <span>{task.type === 'read' ? '📖' : task.type === 'game' ? '🎮' : '📓'}</span>
+                {task.text.split(' ')[0]} {completedTasks[task.id] && '✅'}
+              </button>
+            ))}
+          </div>
+
+          {/* Task Content */}
+          <div className="pt-4">{renderTaskContent()}</div>
+        </div>
+      </main>
+
+      {/* Footer Info (Fixed Bottom) */}
+      <div className="fixed bottom-6 right-6 flex flex-col items-end gap-2">
+        <div className="bg-indigo-900 text-white px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-4">
+          <span>總分：{score} / 100</span>
+          <button onClick={() => setTimerActive(!timerActive)} className="text-xs bg-indigo-500 px-3 py-1 rounded-full">
+            {timerActive ? "⏳ " + formatTime(studyTime) : "⏱️ 開始計時"}
+          </button>
         </div>
       </div>
-
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
-            <h2 className="font-bold text-slate-800 mb-3 text-sm">📅 六天學習進度選擇</h2>
-            <div className="grid grid-cols-3 gap-2">
-              {[1, 2, 3, 4, 5, 6].map((d) => (
-                <button key={d} onClick={() => {
-                    setCurrentDay(d); setSelectedTask(null); setGameFeedback(""); setReadProgress([false, false]); setCurrentReadStep(0); setSpokenText(""); setMatchingScore(null); setHasEvaluated(false); playBeep(330, 0.1);
-                    updateTutor("開始第 " + d + " 天的學習！");
-                  }}
-                  className={"py-2 rounded-xl font-bold flex flex-col items-center transition-all " + (currentDay === d ? "bg-indigo-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200")}
-                ><span className="text-xs">{"Day " + d}</span></button>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
-            <div><span className="text-xs bg-indigo-100 text-indigo-800 font-bold px-2 py-1 rounded-md">今日主題</span><h3 className="font-bold text-slate-800 text-base mt-2">{DAILY_PLANS[currentDay - 1].title}</h3><p className="text-xs text-slate-600 mt-1">{DAILY_PLANS[currentDay - 1].description}</p></div>
-            <div className="border-t pt-4 space-y-3"><h4 className="font-bold text-slate-700 text-xs">✍️ 每日任務清單:</h4>
-              <div className="space-y-2">
-                {DAILY_PLANS[currentDay - 1].tasks.map((task) => (
-                  <div key={task.id} className={"p-3 rounded-xl border flex items-center justify-between gap-2 cursor-pointer " + (selectedTask?.id === task.id ? "border-indigo-500 bg-indigo-50" : "border-slate-100 hover:border-slate-300")}
-                    onClick={() => { setSelectedTask(task); setGameFeedback(""); setReadProgress([false, false]); setCurrentReadStep(0); setSpokenText(""); setMatchingScore(null); setHasEvaluated(false); playBeep(392, 0.1); updateTutor("開始任務： " + task.text); }}
-                  >
-                    <div className="flex items-center gap-2"><span className="text-lg">{completedTasks[task.id] ? "✅" : "⬜"}</span><span className={"text-xs font-semibold " + (completedTasks[task.id] ? "line-through text-slate-400" : "text-slate-700")}>{task.text}</span></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="lg:col-span-8">{renderTaskContent()}</div>
-      </main>
     </div>
   );
 }
-
-
-```
