@@ -1,127 +1,147 @@
 ```react
 import React, { useState, useEffect, useRef } from 'react';
 
-// --- DATA DEFINITION FOR "画龍点睛" ---
+// --- DATA DEFINITION FOR LESSON 10 ---
 const TEXTBOOK_PAGES = [
   {
-    title: "1. 張僧繇與佛寺 (張僧繇と仏寺)",
-    japanese: "【ナレーション】昔々、張僧繇（ちょうそうよう）という偉大な画家がいました。花草、動物、人像など、彼は何でも本物そっくり（維妙維肖）に描くことができました。\nある仏寺では、屋根の梁に止まる野鳥の糞に和尚さんたちがとても困っていました。張僧繇が壁に二羽の鷲（老鷹）を描くと、野鳥は怖がって寄り付かなくなりました。",
+    title: "1. 遇見小王子與大象蛇 (王子さまとの出会いと象を飲み込んだ蛇)",
+    japanese: "【ナレーション】見渡す限りの砂漠の中で、飛行士は宇宙から来た星の王子さまと出会いました。彼は帽子のように見える絵を描いて王子さまに見せました。\n飛行士：僕が何を描いたか当ててみて。\n王子：簡単だよ！とてもよく似てる。\n飛行士：「これは帽子だ」って当てようとしてる？みんなそう言うんだ。\n王子：帽子じゃないよ！君が描いたのは、象を飲み込んだヘビだよ！\n飛行士：（とても驚いて）どうしてわかったの？\n王子：（絵を指さして）3歳の子供でもわかるよ！それに……。\n飛行士：それに何？\n王子：このヘビ、少し前に大きなクジラを飲み込んだばかりだね！",
     paragraphs: [
       {
-        chinese: "很久以前，有個大畫家，名叫張僧繇。不管是花草、動物還是人像，他都畫得維妙維肖。",
-        zhuyin: "ㄏㄣˇ ㄐㄧㄡˇ ㄧˇ ㄑㄧㄢˊ，ㄧㄡˇ ㄍㄜ˙ ㄉㄚˋ ㄏㄨㄚˋ ㄐㄧㄚ，ㄇㄧㄥˊ ㄐㄧㄠˋ ㄓㄤ ㄙㄥ ㄧㄠˊ。ㄅㄨˋ ㄍㄨㄢˇ ㄕˋ ㄏㄨㄚ ㄘㄠˇ、ㄉㄨㄥˋ ㄨˋ ㄏㄞˊ ㄕˋ ㄖㄣˊ ㄒㄧㄤˋ，ㄊㄚ ㄉㄡ ㄏㄨㄚˋ ㄉㄜ˙ ㄨㄟˊ ㄇㄧㄠˋ ㄨㄟˊ ㄒㄧㄠˋ。"
+        chinese: "旁白：一望無際的沙漠中，飛行員遇見了從外太空來的小王子，他畫了一幅看起來像帽子的圖畫給小王子看。",
+        zhuyin: "ㄆㄤˊ ㄅㄞˊ：ㄧˋ ㄨㄤˋ ㄨˊ ㄐㄧˋ ㄉㄜ˙ ㄕㄚ ㄇㄛˋ ㄓㄨㄥ，ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ ㄩˋ ㄐㄧㄢˋ ㄌㄜ˙ ㄘㄨㄥˊ ㄨㄞˋ ㄊㄞˋ ㄎㄨㄥ ㄌㄞˊ ㄉㄜ˙ ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ，ㄊㄚ ㄏㄨㄚˋ ㄌㄜ˙ ㄧˋ ㄈㄨˊ ㄎㄢˋ ㄑㄧˇ ㄌㄞˊ ㄒㄧㄤˋ ㄇㄠˋ ㄗ˙ ㄉㄜ˙ ㄊㄨˊ ㄏㄨㄚˋ ㄍㄟˇ ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ ㄎㄢˋ。"
       },
       {
-        chinese: "有間佛寺常被屋梁上的野鳥留下鳥糞，和尚們很困擾。張僧繇畫了兩隻老鷹，野鳥就不敢靠近了。",
-        zhuyin: "ㄧㄡˇ ㄐㄧㄢ ㄈㄛˊ ㄙˋ ㄔㄤˊ ㄅㄟˋ ㄨ ㄌㄧㄤˊ ㄕㄤˋ ㄉㄜ˙ ㄧㄝˇ ㄋㄧㄠˇ ㄌㄧㄡˊ ㄒㄧㄚˋ ㄋㄧㄠˇ ㄈㄣˋ，ㄏㄜˊ ㄕㄤˋ ㄇㄣ˙ ㄏㄣˇ ㄎㄨㄣˋ ㄖㄠˇ。ㄓㄤ ㄙㄥ ㄧㄠˊ ㄏㄨㄚˋ ㄌㄜ˙ ㄌㄧㄤˇ ㄓ ㄌㄠˇ ㄧㄥ，ㄧㄝˇ ㄋㄧㄠˇ ㄐㄧㄡˋ ㄅㄨˋ ㄍㄢˇ ㄎㄠˋ ㄐㄧㄣˋ ㄌㄜ˙。"
+        chinese: "飛行員：你猜我畫的是什麼？小王子：這很容易呀！你畫得很像。飛行員：你是不是想要猜「這是一頂帽子」？很多人都這麼猜。",
+        zhuyin: "ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：ㄋㄧˇ ㄘㄞ ㄨㄛˇ ㄏㄨㄚˋ ㄉㄜ˙ ㄕˋ ㄕㄣˊ ㄇㄜ˙？ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：ㄓㄜˋ ㄏㄣˇ ㄖㄨㄥˊ ㄧˋ ㄧㄚ！ㄋㄧˇ ㄏㄨㄚˋ ㄉㄜ˙ ㄏㄣˇ ㄒㄧㄤˋ。ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：ㄋㄧˇ ㄕˋ ㄅㄨˊ ㄕˋ ㄒㄧㄤˇ ㄧㄠˋ ㄘㄞ 「ㄓㄜˋ ㄕˋ ㄧˋ ㄉㄧㄥˇ ㄇㄠˋ ㄗ˙」？ㄏㄣˇ ㄉㄨㄛ ㄖㄣˊ ㄉㄡ ㄓㄜˋ ㄇㄜ˙ ㄘㄞ。"
+      },
+      {
+        chinese: "小王子：它不是帽子！你畫的是一條吞了大象的蛇！飛行員：(大吃一驚) 你怎麼知道？小王子：(指著圖畫) 連三歲小孩都看得出來！而且……。飛行員：而且什麼？小王子：這條蛇不久前才吞過大鯨魚！",
+        zhuyin: "ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：ㄊㄚ ㄅㄨˊ ㄕˋ ㄇㄠˋ ㄗ˙！ㄋㄧˇ ㄏㄨㄚˋ ㄉㄜ˙ ㄕˋ ㄧˋ ㄊㄧㄠˊ ㄊㄨㄣ ㄌㄜ˙ ㄉㄚˋ ㄒㄧㄤˋ ㄉㄜ˙ ㄕㄜˊ！ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：(ㄉㄚˋ ㄔ ㄧˋ ㄐㄧㄥ) ㄋㄧˇ ㄗㄣˇ ㄇㄜ˙ ㄓ ㄉㄠˋ？ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：(ㄓˇ ㄓㄜ˙ ㄊㄨˊ ㄏㄨㄚˋ) ㄌㄧㄢˊ ㄙㄢ ㄙㄨㄟˋ ㄒㄧㄠˇ ㄏㄞˊ ㄉㄡ ㄎㄢˋ ㄉㄜ˙ ㄔㄨ ㄌㄞˊ！ㄦˊ ㄑㄧㄝˇ……。ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：ㄦˊ ㄑㄧㄝˇ ㄕㄣˊ ㄇㄜ˙？ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：ㄓㄜˋ ㄊㄧㄠˊ ㄕㄜˊ ㄅㄨˋ ㄐㄧㄡˇ ㄑㄧㄢˊ ㄘㄞˊ ㄊㄨㄣ ㄍㄨㄛˋ ㄉㄚˋ ㄐㄧㄥ ㄩˊ！"
       }
     ],
-    chinese: "很久以前，有個大畫家，名叫張僧繇。不管是花草、動物還是人像，他都畫得維妙維肖。有間佛寺常被屋梁上的野鳥留下鳥糞，和尚們很困擾。張僧繇畫了兩隻老鷹，野鳥就不敢靠近了。"
+    chinese: "旁白：一望無際的沙漠中，飛行員遇見了從外太空來的小王子，他畫了一幅看起來像帽子的圖畫給小王子看。飛行員：你猜我畫的是什麼？小王子：這很容易呀！你畫得很像。飛行員：你是不是想要猜「這是一頂帽子」？很多人都這麼猜。小王子：它不是帽子！你畫的是一條吞了大象的蛇！飛行員：大吃一驚 你怎麼知道？小王子：指著圖畫 連三歲小孩都看得出來！而且。飛行員：而且什麼？小王子：這條蛇不久前才吞過大鯨魚！"
   },
   {
-    title: "2. 安樂寺畫龍 (安楽寺で龍を描く)",
-    japanese: "張僧繇は安楽寺で龍を描くよう招待されました。彼が壁に直接筆を走らせると、あっという間に四匹の龍が描き上がりました。\nあまりにも本物そっくり（逼真）だったため、人々は感嘆してやみませんでした。お婆さんが驚いて孫の手を引いて逃げようとしましたが、孫は言いました。「おばあちゃん、この龍には目玉がないから偽物だよ、怖がらないで。」",
+    title: "2. 請幫我畫一隻羊 (僕に羊を描いて)",
+    japanese: "飛行士：（呆然として）なんてことだ！この事は僕も知らなかった……。\n王子：君は絵がとても上手だね！僕に羊を1匹描いてくれない？\n飛行士：任せて！（筆を振るって羊を描き、王子に見せる）\n王子：この羊は年をとりすぎてる。僕の羊には長生きしてほしいんだ。\n飛行士：わかった！ちょっと待って。（また羊を描く）\n王子：これはもう成長したオス羊だよ。僕は子羊が欲しいな。\n飛行士：もう1回チャンスをちょうだい。今度は絶対に満足させるから！（また描く）\n王子：この羊は病気だよ、元気がなさそう。活発で健康な子羊を描き直して！\n飛行士：（少し不機嫌に）君は注文が多いな！じゃあこれでどうだ、これを君に描いてあげる。（箱を描いた）\n王子：僕の欲しい子羊はどこ？",
     paragraphs: [
       {
-        chinese: "張僧繇受邀到安樂寺畫龍。只見他直接在牆上揮動畫筆，四條龍就畫好了。因為畫得十分逼真，大家都讚嘆不已。",
-        zhuyin: "ㄓㄤ ㄙㄥ ㄧㄠˊ ㄕㄡˋ ㄧㄠ ㄉㄠˋ ㄢ ㄌㄜˋ ㄙˋ ㄏㄨㄚˋ ㄌㄨㄥˊ。ㄓˇ ㄐㄧㄢˋ ㄊㄚ ㄓˊ ㄐㄧㄝ ㄗㄞˋ ㄑㄧㄤˊ ㄕㄤˋ ㄏㄨㄟ ㄉㄨㄥˋ ㄏㄨㄚˋ ㄅㄧˇ，ㄙˋ ㄊㄧㄠˊ ㄌㄨㄥˊ ㄐㄧㄡˋ ㄏㄨㄚˋ ㄏㄠˇ ㄌㄜ˙。ㄧㄣ ㄨㄟˋ ㄏㄨㄚˋ ㄉㄜ˙ ㄕˊ ㄈㄣ ㄅㄧ ㄓㄣ，ㄉㄚˋ ㄐㄧㄚ ㄉㄡ ㄗㄢˋ ㄊㄢˋ ㄅㄨˋ ㄧˇ。"
+        chinese: "飛行員：(目瞪口呆) 天哪！這件事連我不知道……。小王子：我覺得你很會畫畫！能不能請你畫一隻羊給我？",
+        zhuyin: "ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：(ㄇㄨˋ ㄉㄥˋ ㄎㄡˇ ㄉㄞ) ㄊㄧㄢ ㄋㄚˇ！ㄓㄜˋ ㄐㄧㄢˋ ㄕˋ ㄌㄧㄢˊ ㄨㄛˇ ㄅㄨˋ ㄓ ㄉㄠˋ……。ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：ㄨㄛˇ ㄐㄩㄝˊ ㄉㄜ˙ ㄋㄧˇ ㄏㄣˇ ㄏㄨㄟˋ ㄏㄨㄚˋ ㄏㄨㄚˋ！ㄋㄥˊ ㄅㄨˋ ㄋㄥˊ ㄑㄧㄥˇ ㄋㄧˇ ㄏㄨㄚˋ ㄧˋ ㄓ ㄧㄤˊ ㄍㄟˇ ㄨㄛˇ？"
       },
       {
-        chinese: "老奶奶被嚇著了，拉著孫子的手要跑，小孫子說：「奶奶，這些龍沒有眼珠子，是假的，別怕。」",
-        zhuyin: "ㄌㄠˇ ㄋㄞˇ ㄋㄞ˙ ㄅㄟˋ ㄒㄧㄚˋ ㄓㄠˊ ㄌㄜ˙，ㄌㄚ ㄓㄜ˙ ㄙㄨㄣ ㄗ˙ ㄉㄜ˙ ㄕㄡˇ ㄧㄠˋ ㄆㄠˇ，ㄒㄧㄠˇ ㄙㄨㄣ ㄗ˙ ㄕㄨㄛ：「ㄋㄞˇ ㄋㄞ˙，ㄓㄜˋ ㄒㄧㄝ ㄌㄨㄥˊ ㄇㄟˊ ㄧㄡˇ ㄧㄢˇ ㄓㄨ ㄗ˙，ㄕˋ ㄐㄧㄚˇ ㄉㄜ˙，ㄅㄧㄝˊ ㄆㄚˋ。」"
+        chinese: "飛行員：沒問題！(揮動畫筆，畫了一隻羊給小王子看) 小王子：這隻太老了，我希望我的羊可以活得久一點。",
+        zhuyin: "ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：ㄇㄟˊ ㄨㄣˋ ㄊㄧˊ！(ㄏㄨㄟ ㄉㄨㄥˋ ㄏㄨㄚˋ ㄅㄧˇ，ㄏㄨㄚˋ ㄌㄜ˙ ㄧˋ ㄓ ㄧㄤˊ ㄍㄟˇ ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ ㄎㄢˋ) ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：ㄓㄜˋ ㄓ ㄊㄞˋ ㄌㄠˇ ㄌㄜ˙，ㄨㄛˇ ㄒㄧ ㄨㄤˋ ㄨㄛˇ ㄉㄜ˙ ㄧㄤˊ ㄎㄜˇ ㄧˇ ㄏㄨㄛˊ ㄉㄜ˙ ㄐㄧㄡˇ ㄧˋ ㄉㄧㄢˇ。"
+      },
+      {
+        chinese: "飛行員：好！等一下。(又畫了一隻羊) 小王子：這是已經長大的公羊，我想要一隻小羊。飛行員：再給我一次機會，這次保證讓你滿意！(再畫了一隻羊)",
+        zhuyin: "ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：ㄏㄠˇ！ㄉㄥˇ ㄧˊ ㄒㄧㄚˋ。(ㄧㄡˋ ㄏㄨㄚˋ ㄌㄜ˙ ㄧˋ ㄓ ㄧㄤˊ) ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：ㄓㄜˋ ㄕˋ ㄧˇ ㄐㄧㄥ ㄓㄤˇ ㄉㄚˋ ㄉㄜ˙ ㄍㄨㄥ ㄧㄤˊ，ㄨㄛˇ ㄒㄧㄤˇ ㄧㄠˋ ㄧˋ ㄓ ㄒㄧㄠˇ ㄧㄤˊ。ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：ㄗㄞˋ ㄍㄟˇ ㄨㄛˇ ㄧˊ ㄘˋ ㄐㄧ ㄏㄨㄟˋ，ㄓㄜˋ ㄘˋ ㄅㄠˇ ㄓㄥˋ ㄖㄤˋ ㄋㄧˇ ㄇㄢˇ ㄧˋ！(ㄗㄞˋ ㄏㄨㄚˋ ㄌㄜ˙ ㄧˋ ㄓ ㄧㄤˊ)"
+      },
+      {
+        chinese: "小王子：這隻羊生病了，看起來沒什麼精神，麻煩你幫我重新畫一隻活活潑潑、健健康康的小羊！飛行員：(有點不高興) 你的意見真多！這樣好了，我畫這個給你。(畫了一個箱子) 小王子：我要的小羊呢？",
+        zhuyin: "ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：ㄓㄜˋ ㄓ ㄧㄤˊ ㄕㄥ ㄅㄧㄥˋ ㄌㄜ˙，ㄎㄢˋ ㄑㄧˇ ㄌㄞˊ ㄇㄟˊ ㄕㄣˊ ㄇㄜ˙ ㄐㄧㄥ ㄕㄣˊ，ㄇㄚˊ ㄈㄢˊ ㄋㄧˇ ㄅㄤ ㄨㄛˇ ㄔㄨㄥˊ ㄒㄧㄣ ㄏㄨㄚˋ ㄧˋ ㄓ ㄏㄨㄛˊ ㄏㄨㄛˊ ㄆㄛ ㄆㄛ、ㄐㄧㄢˋ ㄐㄧㄢˋ ㄎㄤ ㄎㄤ ㄉㄜ˙ ㄒㄧㄠˇ ㄧㄤˊ！ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：(ㄧㄡˇ ㄉㄧㄢˇ ㄅㄨˋ ㄍㄠ ㄒㄧㄥˋ) ㄋㄧˇ ㄉㄜ˙ ㄧˋ ㄐㄧㄢˋ ㄓㄣ ㄉㄨㄛ！ㄓㄜˋ ㄧㄤˋ ㄏㄠˇ ㄌㄜ˙，ㄨㄛˇ ㄏㄨㄚˋ ㄓㄜˋ ㄍㄜ˙ ㄍㄟˇ ㄋㄧˇ。(ㄏㄨㄚˋ ㄌㄜ˙ ㄧˊ ㄍㄜ˙ ㄒㄧㄤ ㄗ˙) ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：ㄨㄛˇ ㄧㄠˋ ㄉㄜ˙ ㄒㄧㄠˇ ㄧㄤˊ ㄋㄜ˙？"
       }
     ],
-    chinese: "張僧繇受邀到安樂寺畫龍。只見他直接在牆上揮動畫筆，四條龍就畫好了。因為畫得十分逼真，大家都讚嘆不已。老奶奶被嚇著了，拉著孫子的手要跑，小孫子說：「奶奶，這些龍沒有眼珠子，是假的，別怕。」"
+    chinese: "飛行員：目瞪口呆 天哪！這件事連我不知道。小王子：我覺得你很會畫畫！能不能請你畫一隻羊給我？飛行員：沒問題！揮動畫筆畫了一隻羊小王子：這隻太老了，我希望我的羊可以活得久一點。飛行員：好！等一下。小王子：這是已經長大的公羊，我想要一隻小羊。飛行員：再給我一次機會，這次保證讓你滿意！小王子：這隻羊生病了，看起來沒什麼精神，麻煩你幫我重新畫一隻活活潑潑健健康康的小羊！飛行員：有點不高興 你的意見真多！這樣好了，我畫這個給你。畫了一個箱子 小王子：我要的小羊呢？"
   },
   {
-    title: "3. 點睛與飛走 (点睛と飛び去る)",
-    japanese: "大人が「なぜ龍に目を描かないのですか？」と聞くと、張僧繇は「目玉を描き入れると、龍は飛んでいってしまうのだ」と答えました。\n突然、晴れ渡っていた空に雷と稲妻が交錯し、目玉を描き入れられた二匹の龍が力強く壁から飛び出し、空の彼方へ消えていきました。壁には、目玉のない二匹の龍だけが残されていました。",
+    title: "3. 用心來看畫 (心で絵を見る)",
+    japanese: "飛行士：（絵を指さして）これはペット用の箱だよ。君の欲しい子羊はこの中にいる。\n王子：（箱の穴に目を近づけ、笑顔になり、何度も頷く）この子羊、僕にピッタリだ。まさにこれが欲しかったんだ！\n飛行士：（少し驚いて）そ、そう？君が気に入ったなら、その子羊をプレゼントするよ！\n王子：この子羊は草をたくさん食べるかな？大食い？僕の住んでる星は小さくて草が少ないから、お腹いっぱい食べられるか心配なんだ。\n飛行士：安心して！僕が描いたのはとてもとても小さな子羊だから、食欲は多くないよ。\n王子：（また穴から覗き込む）それなら安心だ。見て、眠っちゃったよ。いびきもかいてる！本当にかわいいな！\n飛行士：（絵の箱をじっと見て、頭を掻き、親指を立てる）僕は「手」で絵を描いたけど、君は「心」で絵を見ることができるんだね。本当に素晴らしい！【幕が下りる】",
     paragraphs: [
       {
-        chinese: "大人問：「為什麼不幫龍畫眼睛？」張僧繇說：「一畫上眼珠子，龍就會飛走。」",
-        zhuyin: "ㄉㄚˋ ㄖㄣˊ ㄨㄣˋ：「ㄨㄟˋ ㄕㄣˊ ㄇㄜ˙ ㄅㄨˋ ㄅㄤ ㄌㄨㄥˊ ㄏㄨㄚˋ ㄧㄢˇ ㄐㄧㄥ？」ㄓㄤ ㄙㄥ ㄧㄠˊ ㄕㄨㄛ：「ㄧˋ ㄏㄨㄚˋ ㄕㄤˋ ㄧㄢˇ ㄓㄨ ㄗ˙，ㄌㄨㄥˊ ㄐㄧㄡˋ ㄏㄨㄟˋ ㄈㄟ ㄗㄡˇ。」"
+        chinese: "飛行員：(指著圖畫) 這是一個寵物箱，你要的小羊就在裡面。小王子：(眼睛靠近箱子上的小洞，臉上出現笑容，不停的點頭) 這隻小羊太適合我了，牠正是我想要的！",
+        zhuyin: "ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：(ㄓˇ ㄓㄜ˙ ㄊㄨˊ ㄏㄨㄚˋ) ㄓㄜˋ ㄕˋ ㄧˊ ㄍㄜ˙ ㄔㄨㄥˇ ㄨˋ ㄒㄧㄤ，ㄋㄧˇ ㄧㄠˋ ㄉㄜ˙ ㄒㄧㄠˇ ㄧㄤˊ ㄐㄧㄡˋ ㄗㄞˋ ㄌㄧˇ ㄇㄧㄢˋ。ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：(ㄧㄢˇ ㄐㄧㄥ ㄎㄠˋ ㄐㄧㄣˋ ㄒㄧㄤ ㄗ˙ ㄕㄤˋ ㄉㄜ˙ ㄒㄧㄠˇ ㄉㄨㄥˋ，ㄌㄧㄢˇ ㄕㄤˋ ㄔㄨ ㄒㄧㄢˋ ㄒㄧㄠˋ ㄖㄨㄥˊ，ㄅㄨˋ ㄊㄧㄥˊ ㄉㄜ˙ ㄉㄧㄢˇ ㄊㄡˊ) ㄓㄜˋ ㄓ ㄒㄧㄠˇ ㄧㄤˊ ㄊㄞˋ ㄕˋ ㄏㄜˊ ㄨㄛˇ ㄌㄜ˙，ㄊㄚ ㄓㄥˋ ㄕˋ ㄨㄛˇ ㄒㄧㄤˇ ㄧㄠˋ ㄉㄜ˙！"
       },
       {
-        chinese: "突然間，晴朗的天空雷電交加，點了眼珠子的兩條龍，奮力飛出牆壁，消失在天際。牆上只剩下兩條沒有眼珠子的龍。",
-        zhuyin: "ㄊㄨˊ ㄖㄢˊ ㄐㄧㄢ，ㄑㄧㄥˊ ㄌㄤˇ ㄉㄜ˙ ㄊㄧㄢ ㄎㄨㄥ ㄌㄟˊ ㄉㄧㄢˋ ㄐㄧㄠ ㄐㄧㄚ，ㄉㄧㄢˇ ㄌㄜ˙ ㄧㄢˇ ㄓㄨ ㄗ˙ ㄉㄜ˙ ㄌㄧㄤˇ ㄊㄧㄠˊ ㄌㄨㄥˊ，ㄈㄣˋ ㄌㄧˋ ㄈㄟ ㄔㄨ ㄑㄧㄤˊ ㄅㄧˋ，ㄒㄧㄠ ㄕ ㄗㄞˋ ㄊㄧㄢ ㄐㄧˋ。ㄑㄧㄤˊ ㄕㄤˋ ㄓˇ ㄕㄥˋ ㄒㄧㄚˋ ㄌㄧㄤˇ ㄊㄧㄠˊ ㄇㄟˊ ㄧㄡˇ ㄧㄢˇ ㄓㄨ ㄗ˙ ㄉㄜ˙ ㄌㄨㄥˊ。"
+        chinese: "飛行員：(有點吃驚) 是……是嗎？既然你喜歡，那麼這隻小羊就送給你吧！小王子：這隻小羊需要吃很多草嗎？牠是不是大胃王？我住的星球很小，草不多，不知道夠不夠讓牠吃飽？",
+        zhuyin: "ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：(ㄧㄡˇ ㄉㄧㄢˇ ㄔ ㄐㄧㄥ) ㄕˋ……ㄕˋ ㄇㄚ˙？ㄐㄧˋ ㄖㄢˊ ㄋㄧˇ ㄒㄧˇ ㄏㄨㄢ，ㄋㄚˋ ㄇㄜ˙ ㄓㄜˋ ㄓ ㄒㄧㄠˇ ㄧㄤˊ ㄐㄧㄡˋ ㄙㄨㄥˋ ㄍㄟˇ ㄋㄧˇ ㄅㄚ˙！ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：ㄓㄜˋ ㄓ ㄒㄧㄠˇ ㄧㄤˊ ㄒㄩ ㄧㄠˋ ㄔ ㄏㄣˇ ㄉㄨㄛ ㄘㄠˇ ㄇㄚ˙？ㄊㄚ ㄕˋ ㄅㄨˊ ㄕˋ ㄉㄚˋ ㄨㄟˋ ㄨㄤˊ？ㄨㄛˇ ㄓㄨˋ ㄉㄜ˙ ㄒㄧㄥ ㄑㄧㄡˊ ㄏㄣˇ ㄒㄧㄠˇ，ㄘㄠˇ ㄅㄨˋ ㄉㄨㄛ，ㄅㄨˋ ㄓ ㄉㄠˋ ㄍㄡˋ ㄅㄨˊ ㄍㄡˋ ㄖㄤˋ ㄊㄚ ㄔ ㄅㄠˇ？"
+      },
+      {
+        chinese: "飛行員：放心吧！我畫給你的是一隻很小很小的小小羊，牠的食量不大。小王子：(又從箱子上的小洞往裡頭看) 這樣我就放心了。你看，牠睡著了，還會打呼呢！真的好可愛呀！",
+        zhuyin: "ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：ㄈㄤˋ ㄒㄧㄣ ㄅㄚ˙！ㄨㄛˇ ㄏㄨㄚˋ ㄍㄟˇ ㄋㄧˇ ㄉㄜ˙ ㄕˋ ㄧˋ ㄓ ㄏㄣˇ ㄒㄧㄠˇ ㄏㄣˇ ㄒㄧㄠˇ ㄉㄜ˙ ㄒㄧㄠˇ ㄒㄧㄠˇ ㄧㄤˊ，ㄊㄚ ㄉㄜ˙ ㄕˊ ㄌㄧㄤˋ ㄅㄨˋ ㄉㄚˋ。ㄒㄧㄠˇ ㄨㄤˊ ㄗˇ：(ㄧㄡˋ ㄘㄨㄥˊ ㄒㄧㄤ ㄗ˙ ㄕㄤˋ ㄉㄜ˙ ㄒㄧㄠˇ ㄉㄨㄥˋ ㄨㄤˇ ㄌㄧˇ ㄊㄡˊ ㄎㄢˋ) ㄓㄜˋ ㄧㄤˋ ㄨㄛˇ ㄐㄧㄡˋ ㄈㄤˋ ㄒㄧㄣ ㄌㄜ˙。ㄋㄧˇ ㄎㄢˋ，ㄊㄚ ㄕㄨㄟˋ ㄓㄠˊ ㄌㄜ˙，ㄏㄞˊ ㄏㄨㄟˋ ㄉㄚˇ ㄏㄨ ㄋㄜ˙！ㄓㄣ ㄉㄜ˙ ㄏㄠˇ ㄎㄜˇ ㄞˋ ㄧㄚ！"
+      },
+      {
+        chinese: "飛行員：(對著圖畫中的箱子，瞧了又瞧，抓了抓頭，豎起大拇指) 我用「手」畫畫，你卻能用「心」來看畫，真是了不起！",
+        zhuyin: "ㄈㄟ ㄒㄧㄥˊ ㄩㄢˊ：(ㄉㄨㄟˋ ㄓㄜ˙ ㄊㄨˊ ㄏㄨㄚˋ ㄓㄨㄥ ㄉㄜ˙ ㄒㄧㄤ ㄗ˙，ㄑㄧㄠˊ ㄌㄜ˙ ㄧㄡˋ ㄑㄧㄠˊ，ㄓㄨㄚ ㄌㄜ˙ ㄓㄨㄚ ㄊㄡˊ，ㄕㄨˋ ㄑㄧˇ ㄉㄚˋ ㄇㄨˇ ㄓˇ) ㄨㄛˇ ㄩㄥˋ 「ㄕㄡˇ」 ㄏㄨㄚˋ ㄏㄨㄚˋ，ㄋㄧˇ ㄑㄩㄝˋ ㄋㄥˊ ㄩㄥˋ 「ㄒㄧㄣ」 ㄌㄞˊ ㄎㄢˋ ㄏㄨㄚˋ，ㄓㄣ ㄕˋ ㄌㄧㄠˇ ㄅㄨˋ ㄑㄧˇ！"
       }
     ],
-    chinese: "大人問：「為什麼不幫龍畫眼睛？」張僧繇說：「一畫上眼珠子，龍就會飛走。」突然間，晴朗的天空雷電交加，點了眼珠子的兩條龍，奮力飛出牆壁，消失在天際。牆上只剩下兩條沒有眼珠子的龍。"
+    chinese: "飛行員：指著圖畫 這是一個寵物箱，你要的小羊就在裡面。小王子：這隻小羊太適合我了，牠正是我想要的！飛行員：是是嗎？既然你喜歡，那麼這隻小羊就送給你吧！小王子：這隻小羊需要吃很多草嗎？牠是不是大胃王？我住的星球很小，草不多，不知道夠不夠讓牠吃飽？飛行員：放心吧！我畫給你的是一隻很小很小的小小羊，牠的食量不大。小王子：這樣我就放心了。你看，牠睡著了，還會打呼呢！真的好可愛呀！飛行員：瞧了又瞧抓了抓頭豎起大拇指 我用手畫畫，你卻能用心來看畫，真是了不起！"
   }
 ];
 
 const VOCABULARY = [
-  { char: "畫家", zhuyin: "ㄏㄨㄚˋ ㄐㄧㄚ", meaning: "画家", example: "他是個大畫家。", exMeaning: "彼は偉大な画家です。" },
-  { char: "維妙維肖", zhuyin: "ㄨㄟˊ ㄇㄧㄠˋ ㄨㄟˊ ㄒㄧㄠˋ", meaning: "本物そっくりである", example: "畫得維妙維肖。", exMeaning: "本物そっくりに描かれている。" },
-  { char: "屋梁", zhuyin: "ㄨ ㄌㄧㄤˊ", meaning: "屋根の梁(はり)", example: "野鳥停在屋梁上。", exMeaning: "野鳥が屋根の梁に止まる。" },
-  { char: "困擾", zhuyin: "ㄎㄨㄣˋ ㄖㄠˇ", meaning: "困る、悩まされる", example: "和尚們很困擾。", exMeaning: "和尚さんたちはとても困っていました。" },
-  { char: "老鷹", zhuyin: "ㄌㄠˇ ㄧㄥ", meaning: "鷲(わし)・鷹", example: "畫了兩隻老鷹。", exMeaning: "二羽の鷲を描いた。" },
-  { char: "逼真", zhuyin: "ㄅㄧ ㄓㄣ", meaning: "本物に迫る、リアルだ", example: "畫得十分逼真。", exMeaning: "とてもリアルに描かれている。" },
-  { char: "讚嘆", zhuyin: "ㄗㄢˋ ㄊㄢˋ", meaning: "感嘆する、ほめたたえる", example: "大家都讚嘆不已。", exMeaning: "みんな感嘆してやみませんでした。" },
-  { char: "眼珠子", zhuyin: "ㄧㄢˇ ㄓㄨ ㄗ˙", meaning: "目玉", example: "龍沒有眼珠子。", exMeaning: "龍には目玉がありません。" },
-  { char: "晴朗", zhuyin: "ㄑㄧㄥˊ ㄌㄤˇ", meaning: "晴れ渡っている", example: "晴朗的天空。", exMeaning: "晴れ渡った空。" },
-  { char: "雷電交加", zhuyin: "ㄌㄟˊ ㄉㄧㄢˋ ㄐㄧㄠ ㄐㄧㄚ", meaning: "雷と稲妻が交錯する", example: "突然雷電交加。", exMeaning: "突然雷と稲妻が鳴り響いた。" },
-  { char: "奮力", zhuyin: "ㄈㄣˋ ㄌㄧˋ", meaning: "力を振り絞る", example: "龍奮力飛出牆壁。", exMeaning: "龍は力強く壁から飛び出した。" },
-  { char: "消失", zhuyin: "ㄒㄧㄠ ㄕ", meaning: "消える、消失する", example: "消失在天際。", exMeaning: "空の彼方へ消えた。" }
+  { char: "沙漠", zhuyin: "ㄕㄚ ㄇㄛˋ", meaning: "砂漠", example: "一望無際的沙漠。", exMeaning: "見渡す限りの砂漠。" },
+  { char: "幅", zhuyin: "ㄈㄨˊ", meaning: "絵を数える単位（枚/幅）", example: "他畫了一幅圖畫。", exMeaning: "彼は一枚の絵を描きました。" },
+  { char: "蛇", zhuyin: "ㄕㄜˊ", meaning: "ヘビ", example: "那是一條吞了大象的蛇。", exMeaning: "あれは象を飲み込んだヘビです。" },
+  { char: "鯨魚", zhuyin: "ㄐㄧㄥ ㄩˊ", meaning: "クジラ", example: "蛇吞過大鯨魚。", exMeaning: "ヘビは大きなクジラを飲み込みました。" },
+  { char: "目瞪口呆", zhuyin: "ㄇㄨˋ ㄉㄥˋ ㄎㄡˇ ㄉㄞ", meaning: "呆然とする・驚きあきれる", example: "他驚訝得目瞪口呆。", exMeaning: "彼は驚いて呆然としました。" },
+  { char: "寵物", zhuyin: "ㄔㄨㄥˇ ㄨˋ", meaning: "ペット", example: "這是一個寵物箱。", exMeaning: "これはペット用の箱です。" },
+  { char: "胃口", zhuyin: "ㄨㄟˋ ㄎㄡˇ", meaning: "食欲", example: "小羊的胃口不大。", exMeaning: "子羊の食欲は大きくありません。" },
+  { char: "拇指", zhuyin: "ㄇㄨˇ ㄓˇ", meaning: "親指", example: "飛行員豎起大拇指。", exMeaning: "飛行士は親指を立てました（いいね！のサイン）。" },
+  { char: "既然", zhuyin: "ㄐㄧˋ ㄖㄢˊ", meaning: "〜である以上、〜だからには", example: "既然你喜歡，就送給你吧！", exMeaning: "君が気に入ったのなら、プレゼントするよ！" },
+  { char: "了不起", zhuyin: "ㄌㄧㄠˇ ㄅㄨˋ ㄑㄧˇ", meaning: "素晴らしい・たいしたものだ", example: "你能用心看畫，真是了不起！", exMeaning: "心で絵が見えるなんて、本当に素晴らしい！" },
+  { char: "驚訝", zhuyin: "ㄐㄧㄥ ㄧㄚˋ", meaning: "驚く", example: "他吃驚地看著我。", exMeaning: "彼は驚いて私を見ました。" },
+  { char: "疑惑", zhuyin: "ㄧˊ ㄏㄨㄛˋ", meaning: "疑問に思う・戸惑う", example: "他抓了抓頭，感到很疑惑。", exMeaning: "彼は頭を掻いて、とても戸惑いました。" }
 ];
 
 const DAILY_PLANS = [
   {
     day: 1,
-    title: "第一天: 張僧繇與佛寺 🖌️",
-    description: "學習第一段故事，了解張僧繇高超的畫技！",
+    title: "第一天: 遇見小王子與大象蛇 🐍",
+    description: "學習劇本的基本結構，並了解飛行員和小王子的奇妙相遇！",
     tasks: [
-      { id: "read1", type: "read", text: "閱讀第一幕 & 大聲全文朗讀", target: 0 },
-      { id: "vocab1", type: "vocab", text: "學習生字：畫家、維妙維肖、屋梁、困擾", target: [0, 1, 2, 3] },
-      { id: "game1", type: "game", text: "張僧繇的魔法畫筆測驗" }
+      { id: "read1", type: "read", text: "閱讀劇本第一幕 & 大聲全文朗讀", target: 0 },
+      { id: "vocab1", type: "vocab", text: "學習生字：沙漠、幅、蛇、鯨魚...", target: [0, 1, 2, 3] },
+      { id: "game1", type: "game", text: "小王子的奇妙圖畫測驗" }
     ]
   },
   {
     day: 2,
-    title: "第二天: 安樂寺畫龍 🐉",
-    description: "張僧繇畫了四條龍，但為什麼不畫眼睛呢？",
+    title: "第二天: 請幫我畫一隻羊 🐑",
+    description: "小王子對畫出來的羊不滿意？來看看飛行員最後畫了什麼！",
     tasks: [
-      { id: "read2", type: "read", text: "閱讀第二幕 & 大聲全文朗讀", target: 1 },
-      { id: "vocab2", type: "vocab", text: "學習生字：老鷹、逼真、讚嘆、眼珠子", target: [4, 5, 6, 7] },
-      { id: "game2", type: "game", text: "安樂寺的奇妙發現" }
+      { id: "read2", type: "read", text: "閱讀劇本第二段 & 大聲全文朗讀", target: 1 },
+      { id: "vocab2", type: "vocab", text: "學習生字：目瞪口呆、驚訝...", target: [4, 10, 11] },
+      { id: "game2", type: "game", text: "挑剔的小王子：選出羊的缺點" }
     ]
   },
   {
     day: 3,
-    title: "第三天: 點睛與飛走 ⚡",
-    description: "加上眼睛的龍，到底發生了什麼神奇的事？",
+    title: "第三天: 用心來看畫 💖",
+    description: "盒子裡看不見的羊，為什麼小王子這麼喜歡呢？",
     tasks: [
-      { id: "read3", type: "read", text: "閱讀結局 & 大聲全文朗讀", target: 2 },
-      { id: "vocab3", type: "vocab", text: "學習生字：晴朗、雷電交加、奮力、消失", target: [8, 9, 10, 11] },
-      { id: "game3", type: "game", text: "畫龍點睛事件重組" }
+      { id: "read3", type: "read", text: "閱讀劇本結局 & 大聲全文朗讀", target: 2 },
+      { id: "vocab3", type: "vocab", text: "學習生字：寵物、胃口、拇指...", target: [5, 6, 7, 8, 9] },
+      { id: "game3", type: "game", text: "劇本動作解密大挑戰 (P.69)" }
     ]
   },
   {
     day: 4,
-    title: "第四天: 漢字與語法特訓 📝",
-    description: "綜合複習本課字詞，並練習「一... 就...」的句型！",
+    title: "第四天: 漢字特訓與語句邏輯 📝",
+    description: "綜合複習本課的重要字詞，並在筆記本上進行寫字特訓！",
     tasks: [
       { id: "vocab4", type: "vocab_all", text: "單字卡總複習 (全 12 個)", target: null },
-      { id: "game4", type: "game", text: "句型拼圖：「一... 就...」" },
-      { id: "notebook4", type: "notebook", text: "【紙本任務】生字與注音書寫練習" }
+      { id: "game4", type: "game", text: "文法重組：「既然... 就...」 (P.73)" },
+      { id: "notebook4", type: "notebook", text: "【紙本任務】習作 P.68 國字注音書寫" }
     ]
   },
   {
     day: 5,
-    title: "第五天: 四字成語大師 🏆",
-    description: "故事中出現了許多四字成語，一起來把它們記熟吧！",
+    title: "第五天: 標點符號：刪節號的祕密 💬",
+    description: "學習「……」（刪節號）的用法，並練習寫出帶有因果關係的句子。",
     tasks: [
-      { id: "game5_1", type: "game", text: "成語配對：維妙維肖 vs 雷電交加" },
-      { id: "game5_2", type: "game", text: "看圖選詞：天空的變化" },
-      { id: "notebook5", type: "notebook", text: "【紙本任務】筆記本造句練習" }
+      { id: "game5_1", type: "game", text: "標點符號測驗：刪節號用法 (P.71)" },
+      { id: "game5_2", type: "game", text: "看圖選詞：小蛇吃東西 (P.74)" },
+      { id: "notebook5", type: "notebook", text: "【紙本任務】筆記本造句：既然...就..." }
     ]
   },
   {
     day: 6,
-    title: "第六天: 畫龍點睛大會考 🎓",
-    description: "挑戰最終測驗，證明你已經完全掌握了這個經典故事！",
+    title: "第六天: 第十課總複習大會考 🎓",
+    description: "把這六天的精華全部複習一遍，向家長展示你的學習成果，領取證書！",
     tasks: [
-      { id: "final6", type: "game", text: "畫龍點睛 終極大會考 (7題)" },
+      { id: "final6", type: "game", text: "第十課 飛行員大會考 (加量版 7 題)！" },
       { id: "notebook6", type: "notebook", text: "【最終任務】給家長看筆記本並領取通關證明！" }
     ]
   }
@@ -131,11 +151,10 @@ const App = () => {
   const [currentDay, setCurrentDay] = useState(1);
   const [selectedTask, setSelectedTask] = useState(null);
   const [completedTasks, setCompletedTasks] = useState({});
-  // 30 Minutes Timer (1800 seconds)
   const [studyTime, setStudyTime] = useState(1800); 
   const [timerActive, setTimerActive] = useState(false);
   const [score, setScore] = useState(0);
-  const [tutorMessage, setTutorMessage] = useState("你好！準備好聽「畫龍點睛」的故事了嗎？請從第 1 天開始吧！");
+  const [tutorMessage, setTutorMessage] = useState("你好！歡迎來到小王子的星球！請從左邊選擇第 1 天開始學習吧！");
   const [speechPitch, setSpeechPitch] = useState(1.1); 
   const [speechRate, setSpeechRate] = useState(0.85); 
 
@@ -329,44 +348,44 @@ const App = () => {
   const renderReadTask = (page, taskId) => {
     const allReadCompleted = readProgress.every(v => v === true);
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-md border border-emerald-100 space-y-6 animate-fade-in">
+      <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-100 space-y-6 animate-fade-in">
         <div className="flex justify-between items-center border-b pb-4">
-          <h3 className="text-lg font-bold text-emerald-800">{page.title}</h3>
+          <h3 className="text-lg font-bold text-indigo-800">{page.title}</h3>
           <button onClick={() => { toggleTaskCompletion(taskId); if (!allReadCompleted) setReadProgress([true, true]); }}
-            className={"px-4 py-2 rounded-full text-xs font-bold transition-all " + (completedTasks[taskId] ? "bg-emerald-500 text-white shadow" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200")}
+            className={"px-4 py-2 rounded-full text-xs font-bold transition-all " + (completedTasks[taskId] ? "bg-emerald-100 text-emerald-800" : "bg-indigo-100 text-indigo-800 hover:bg-indigo-200")}
           >
             {completedTasks[taskId] ? "✅ 任務完成" : "📖 全文音讀完畢請點此！"}
           </button>
         </div>
         <div className="space-y-6">
           {page.paragraphs.map((para, pIdx) => (
-            <div key={pIdx} className="bg-emerald-50/40 p-4 rounded-xl border border-emerald-100/50 space-y-1">
+            <div key={pIdx} className="bg-indigo-50/40 p-4 rounded-xl border border-indigo-100/50 space-y-1">
               <p className="text-lg font-bold text-slate-800 tracking-wide leading-relaxed">{para.chinese}</p>
-              <p className="text-xs font-semibold text-teal-700 tracking-wider leading-relaxed bg-teal-50/50 p-1.5 rounded border border-teal-100/30 font-mono">注音: {para.zhuyin}</p>
+              <p className="text-xs font-semibold text-sky-800 tracking-wider leading-relaxed bg-sky-50/50 p-1.5 rounded border border-sky-100/30 font-mono">注音: {para.zhuyin}</p>
             </div>
           ))}
-          <div className="mt-4"><button onClick={() => speakText(page.chinese, "zh-TW")} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-semibold shadow-sm">🔊 聽課文全文朗讀</button></div>
+          <div className="mt-4"><button onClick={() => speakText(page.chinese, "zh-TW")} className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-sm">🔊 聽課文全文朗讀</button></div>
         </div>
 
-        <div className="bg-gradient-to-r from-teal-50 to-emerald-50 p-5 rounded-2xl border-2 border-emerald-200 space-y-4">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border-2 border-indigo-200 space-y-4">
           <div className="flex items-center gap-2"><span className="text-2xl">🎤</span>
-            <div><h4 className="font-bold text-emerald-800 text-sm">AI 語音音讀挑戰：大聲跟讀全文 2 次</h4><p className="text-xs text-slate-600">讀完後點選「結束並評分」。</p></div>
+            <div><h4 className="font-bold text-indigo-800 text-sm">AI 語音音讀挑戰：大聲跟讀全文 2 次</h4><p className="text-xs text-slate-600">讀完後點選「結束並評分」。</p></div>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {[0, 1].map((idx) => (
               <button key={idx} onClick={() => { setCurrentReadStep(idx); setSpokenText(""); setMatchingScore(null); setSpeechError(""); setHasEvaluated(false); }}
-                className={"py-2 px-3 rounded-xl text-xs font-bold transition-all " + (currentReadStep === idx ? "bg-emerald-500 text-white" : "bg-white text-slate-600 border") + " flex justify-center gap-1.5"}
+                className={"py-2 px-3 rounded-xl text-xs font-bold transition-all " + (currentReadStep === idx ? "bg-indigo-500 text-white" : "bg-white text-slate-600 border") + " flex justify-center gap-1.5"}
               ><span>第 {idx + 1} 次朗讀</span>{readProgress[idx] ? <span className="text-emerald-500">✅</span> : <span>○</span>}</button>
             ))}
           </div>
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            {!isListening ? (<button onClick={startListening} className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 font-bold text-sm text-white rounded-xl shadow-md">🎤 開始朗讀</button>) : (<button onClick={stopListeningAndEvaluate} className="flex-1 py-3 bg-red-500 hover:bg-red-600 font-bold text-sm text-white rounded-xl shadow-md animate-pulse">🛑 結束並評分</button>)}
+            {!isListening ? (<button onClick={startListening} className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-600 font-bold text-sm text-white rounded-xl shadow-md">🎤 開始朗讀</button>) : (<button onClick={stopListeningAndEvaluate} className="flex-1 py-3 bg-red-500 hover:bg-red-600 font-bold text-sm text-white rounded-xl shadow-md animate-pulse">🛑 結束並評分</button>)}
             <button onClick={simulateCorrectReading} className="py-3 px-4 rounded-xl bg-slate-200 text-slate-700 font-semibold text-xs">👌 手動驗證</button>
           </div>
           {hasEvaluated && (spokenText || matchingScore !== null || speechError) && (
             <div className="bg-white p-4 rounded-xl border text-sm">
               {speechError ? (<p className="text-red-500">{speechError}</p>) : (<>
-                {spokenText && (<div className="text-slate-700 font-medium">🎧 辨識結果： <span className="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded block">{spokenText}</span></div>)}
+                {spokenText && (<div className="text-slate-700 font-medium">🎧 辨識結果： <span className="text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded block">{spokenText}</span></div>)}
                 {matchingScore !== null && (<div className="flex items-center gap-2 pt-2"><span className="font-semibold">🎯 相似度：</span><span className={"text-lg font-bold " + (matchingScore >= 35 ? "text-emerald-600" : "text-red-500")}>{matchingScore}%</span></div>)}
               </>)}
             </div>
@@ -378,95 +397,76 @@ const App = () => {
   };
 
   const renderInteractiveGame = () => {
-    // Day 1: Magic Brush
+    // Day 1: Prince's Drawing
     if (selectedTask.id === 'game1') {
       return (
-        <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-emerald-200 space-y-6">
-          <h3 className="text-lg font-bold text-emerald-800">🎮 張僧繇的魔法畫筆測驗</h3>
-          <p className="text-sm text-slate-600">和尚們為了解決屋梁上的鳥糞問題，請張僧繇幫忙。他畫了什麼？</p>
+        <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-indigo-200 space-y-6">
+          <h3 className="text-lg font-bold text-indigo-800">🎮 小王子的奇妙圖畫測驗</h3>
+          <p className="text-sm text-slate-600">小王子畫的第一張圖，大人們覺得是什麼？而小王子實際上畫的是什麼呢？</p>
           <div className="space-y-4">
             <div className="bg-slate-50 p-4 rounded-xl border">
-              <p className="font-bold text-slate-800 mb-2">Q: 為了趕走野鳥，張僧繇在佛寺畫了什麼？</p>
-              <div className="flex flex-col gap-2">
-                <button onClick={()=>{ handleCorrect(); setQuizAnswers(p=>({...p, q1:true})); toggleTaskCompletion(selectedTask.id); setGameFeedback("🎉 答對了！畫了老鷹之後，野鳥就不敢靠近了！"); }} className={"px-4 py-3 border rounded-xl font-bold text-left " + (quizAnswers.q1 ? "bg-emerald-500 text-white" : "bg-white hover:bg-emerald-50")}>1. 兩隻老鷹</button>
-                <button onClick={()=>handleWrong()} className="px-4 py-3 bg-white border rounded-xl hover:bg-slate-100 font-bold text-left">2. 幾隻小貓</button>
-                <button onClick={()=>handleWrong()} className="px-4 py-3 bg-white border rounded-xl hover:bg-slate-100 font-bold text-left">3. 一個稻草人</button>
+              <p className="font-bold text-slate-800 mb-2">Q1: 飛行員猜小王子的圖畫是哪一種物品？</p>
+              <div className="flex gap-2">
+                <button onClick={()=>handleWrong()} className="px-4 py-2 bg-white border rounded hover:bg-slate-100 font-bold">一座山</button>
+                <button onClick={()=>{handleCorrect(); setQuizAnswers(p=>({...p, q1:true}));}} className={"px-4 py-2 border rounded font-bold " + (quizAnswers.q1 ? "bg-emerald-500 text-white" : "bg-white")}>一頂帽子</button>
+              </div>
+            </div>
+            <div className="bg-slate-50 p-4 rounded-xl border">
+              <p className="font-bold text-slate-800 mb-2">Q2: 圖畫真正的答案是？</p>
+              <div className="flex gap-2">
+                <button onClick={()=>{
+                  handleCorrect(); setQuizAnswers(p=>({...p, q2:true}));
+                  if(quizAnswers.q1) { toggleTaskCompletion(selectedTask.id); setGameFeedback("🎉 恭喜！你跟小王子一樣有豐富的想像力！");}
+                }} className={"px-4 py-2 border rounded font-bold " + (quizAnswers.q2 ? "bg-emerald-500 text-white" : "bg-white")}>一條吞了大象的蛇</button>
+                <button onClick={()=>handleWrong()} className="px-4 py-2 bg-white border rounded hover:bg-slate-100 font-bold">一條吃飽的魚</button>
               </div>
             </div>
           </div>
-          {gameFeedback && <div className="p-3 text-center bg-emerald-100 text-emerald-900 font-bold rounded-xl">{gameFeedback}</div>}
+          {gameFeedback && <div className="p-3 text-center bg-indigo-100 text-indigo-900 font-bold rounded-xl">{gameFeedback}</div>}
         </div>
       );
     }
 
-    // Day 2: Missing Eyes
+    // Day 2: Picky Prince
     if (selectedTask.id === 'game2') {
+      const options = [
+        { desc: "太老了 (年をとりすぎ)", correct: true }, { desc: "是公羊 (オス羊だ)", correct: true }, 
+        { desc: "太胖了 (太りすぎ)", correct: false }, { desc: "生病了 (病気だ)", correct: true }
+      ];
       return (
-        <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-emerald-200 space-y-6">
-          <h3 className="text-lg font-bold text-emerald-800">🎮 安樂寺的奇妙發現</h3>
-          <p className="text-sm text-slate-600">大家看到牆上的四條龍都覺得很「逼真」，但小孫子卻說不用怕，為什麼呢？</p>
-          <div className="grid grid-cols-1 gap-4 mt-4">
-            <button onClick={()=>{ handleWrong(); }} className="p-4 bg-white border-2 rounded-xl font-bold hover:border-emerald-400">因為龍是被關在籠子裡的</button>
-            <button onClick={()=>{ handleCorrect(); toggleTaskCompletion(selectedTask.id); setGameFeedback("🎉 沒錯！小孫子發現龍沒有眼珠子。"); }} className="p-4 bg-white border-2 rounded-xl font-bold hover:border-emerald-400">因為這些龍沒有畫上「眼珠子」</button>
-            <button onClick={()=>{ handleWrong(); }} className="p-4 bg-white border-2 rounded-xl font-bold hover:border-emerald-400">因為龍在睡覺</button>
-          </div>
-          {gameFeedback && <div className="p-3 mt-4 text-center bg-emerald-100 text-emerald-900 font-bold rounded-xl">{gameFeedback}</div>}
-        </div>
-      );
-    }
-
-    // Day 3: Dotting the eyes
-    if (selectedTask.id === 'game3') {
-      return (
-        <div className="bg-white rounded-2xl p-6 shadow-md border border-emerald-200 space-y-6">
-          <h3 className="text-lg font-bold text-emerald-800">🎮 畫龍點睛事件重組</h3>
-          <p className="text-sm text-slate-600">請依照故事發生的順序，點選正確的結果！</p>
-          <div className="space-y-4">
-            <div className="p-4 bg-slate-50 rounded-xl border">
-              <p className="font-bold text-slate-800 mb-2">當張僧繇幫兩條龍「點上眼珠子」後，發生了什麼事？</p>
-              <div className="flex flex-col gap-2">
-                <button onClick={()=>{ handleCorrect(); setQuizAnswers(p=>({...p, step1:true})); toggleTaskCompletion(selectedTask.id); }} className={"px-4 py-3 border rounded-lg font-bold " + (quizAnswers.step1 ? "bg-emerald-500 text-white" : "bg-white")}>天空雷電交加，兩條龍奮力飛出牆壁消失了！</button>
-                <button onClick={()=>handleWrong()} className="px-4 py-3 bg-white border rounded-lg hover:bg-amber-100 font-bold">這兩條龍從牆上走下來，變成他的寵物。</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // Day 4: Grammar
-    if (selectedTask.id === 'game4') {
-      return (
-        <div className="bg-white rounded-2xl p-6 shadow-md border border-emerald-200 space-y-6">
-          <h3 className="text-lg font-bold text-emerald-800">🎮 句型拼圖：「一... 就...」</h3>
-          <div className="bg-emerald-50 p-4 rounded-xl text-center border"><p className="text-lg font-bold text-emerald-900">一畫上眼珠子，龍就會飛走。</p></div>
-          <div className="p-4 bg-slate-50 rounded-xl flex flex-wrap gap-2 justify-center">
-            {["一", "畫上", "眼珠子，", "龍", "就會", "飛走。"].map((phrase, idx) => (
-              <button key={idx} onClick={()=>{ handleCorrect(); speakText(phrase); if(idx===5) toggleTaskCompletion(selectedTask.id); }} className="px-4 py-2 bg-white font-bold rounded-lg border hover:bg-emerald-100">{phrase}</button>
+        <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-indigo-200 space-y-6">
+          <h3 className="text-lg font-bold text-indigo-800">🎮 挑剔的小王子</h3>
+          <p className="text-sm text-slate-600">飛行員畫了好幾隻羊，小王子都不滿意。請選出課文中出現過的**三個缺點**！</p>
+          <div className="grid grid-cols-2 gap-4">
+            {options.map((opt, i) => (
+              <button key={i} onClick={()=>{
+                if(opt.correct) { handleCorrect(); setQuizAnswers(p=>({...p, [i]:true})); if(Object.keys({...quizAnswers, [i]:true}).length===3) toggleTaskCompletion(selectedTask.id); } else { handleWrong(); }
+              }} className={"p-4 border-2 rounded-xl font-bold " + (quizAnswers[i] ? "bg-emerald-100 border-emerald-500" : "bg-slate-50 hover:border-indigo-400")}>{opt.desc}</button>
             ))}
           </div>
         </div>
       );
     }
 
-    // Day 5_1: Idioms
-    if (selectedTask.id === 'game5_1') {
+    // Day 3: Action decode (P.69)
+    if (selectedTask.id === 'game3') {
       const actions = [
-        { act: "維妙維肖", meaning: "畫得非常逼真，像真的一樣", match: 0 },
-        { act: "雷電交加", meaning: "打雷又閃電，天氣劇烈變化", match: 1 }
+        { act: "目瞪口呆", meaning: "驚訝得說不出話 (驚いて声が出ない)", match: 0 },
+        { act: "豎起大拇指", meaning: "滿意、稱讚 (満足・褒める)", match: 1 },
+        { act: "抓了抓頭", meaning: "疑惑、不解 (戸惑う・わからない)", match: 2 },
       ];
       return (
-        <div className="bg-white rounded-2xl p-6 shadow-md border border-emerald-200 space-y-4">
-          <h3 className="text-lg font-bold text-emerald-800">🎮 成語配對</h3>
-          <p className="text-sm text-slate-600 mb-4">請將四字成語與正確的意思配對起來！</p>
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-200 space-y-6">
+          <h3 className="text-lg font-bold text-indigo-800">🎮 劇本動作解密 (P.69)</h3>
+          <p className="text-sm text-slate-600">請將劇本中的「動作」與它代表的「內心想法」配對！</p>
           <div className="space-y-4">
             {actions.map((item, idx) => (
               <div key={idx} className="p-4 bg-slate-50 rounded-xl border flex flex-col md:flex-row justify-between items-center gap-4">
-                <span className="font-bold text-emerald-700 text-lg">{item.act}</span>
+                <span className="font-bold text-indigo-700 text-lg">{item.act}</span>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {actions.map((ans, aIdx) => (
                     <button key={aIdx} onClick={()=>{
-                      if(aIdx === item.match) { handleCorrect(); setQuizAnswers(p=>({...p, [idx]:true})); if(Object.keys({...quizAnswers, [idx]:true}).length===2) toggleTaskCompletion(selectedTask.id); } else { handleWrong(); }
+                      if(aIdx === item.match) { handleCorrect(); setQuizAnswers(p=>({...p, [idx]:true})); if(Object.keys({...quizAnswers, [idx]:true}).length===3) toggleTaskCompletion(selectedTask.id); } else { handleWrong(); }
                     }} className={"px-3 py-1.5 rounded-lg text-sm font-bold border " + (quizAnswers[idx] && aIdx===item.match ? "bg-emerald-500 text-white" : "bg-white")}>{ans.meaning}</button>
                   ))}
                 </div>
@@ -477,47 +477,87 @@ const App = () => {
       );
     }
 
-    // Day 5_2: Story fill
-    if (selectedTask.id === 'game5_2') {
+    // Day 4: Grammar
+    if (selectedTask.id === 'game4') {
       return (
-        <div className="bg-white rounded-2xl p-6 shadow-md border border-emerald-200 space-y-4">
-          <h3 className="text-lg font-bold text-emerald-800">🎮 看圖選詞：天空的變化</h3>
-          <p className="text-sm">原本(晴朗)的天空，在張僧繇畫上眼睛後，突然變得(雷電交加)。</p>
-          <div className="flex justify-center gap-4 mt-4">
-            <button onClick={()=>{ handleCorrect(); toggleTaskCompletion(selectedTask.id); }} className="px-6 py-3 bg-emerald-500 text-white font-bold rounded-xl shadow-md">了解了！(確認)</button>
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-200 space-y-6">
+          <h3 className="text-lg font-bold text-indigo-800">🎮 文法重組：「既然... 就...」</h3>
+          <div className="bg-indigo-50 p-4 rounded-xl text-center border"><p className="text-lg font-bold text-indigo-900">既然你喜歡，那麼這隻小羊就送給你吧！</p></div>
+          <div className="p-4 bg-slate-50 rounded-xl flex flex-wrap gap-2 justify-center">
+            {["既然", "你喜歡，", "那麼這隻小羊", "就送給你吧！"].map((phrase, idx) => (
+              <button key={idx} onClick={()=>{ handleCorrect(); speakText(phrase); if(idx===3) toggleTaskCompletion(selectedTask.id); }} className="px-4 py-2 bg-white font-bold rounded-lg border hover:bg-amber-100">{phrase}</button>
+            ))}
           </div>
         </div>
       );
     }
 
-    // Day 6: Final Exam (7 questions)
+    // Day 5_1: Punctuation (P.71)
+    if (selectedTask.id === 'game5_1') {
+      const qList = [
+        { q: "是……是嗎？ (這句話的刪節號代表什麼？)", options: ["說話斷斷續續 (言葉が途切れる)", "列舉省略"], ans: 0 },
+        { q: "不管是橫、豎、點……每個字都很用心。(代表什麼？)", options: ["話沒說完 (言葉が未完結)", "列舉省略"], ans: 1 }
+      ];
+      return (
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-200 space-y-4">
+          <h3 className="text-lg font-bold text-indigo-800">🎮 標點符號測驗：刪節號 (……)</h3>
+          {qList.map((item, idx) => (
+            <div key={idx} className="p-4 bg-slate-50 rounded-xl border space-y-2">
+              <p className="font-bold">{item.q}</p>
+              <div className="flex gap-2">
+                {item.options.map((opt, oIdx) => (
+                  <button key={oIdx} onClick={()=>{
+                    if(oIdx===item.ans) { handleCorrect(); setQuizAnswers(p=>({...p, [idx]:true})); if(Object.keys({...quizAnswers, [idx]:true}).length===2) toggleTaskCompletion(selectedTask.id); } else { handleWrong(); }
+                  }} className={"px-4 py-2 border rounded font-bold " + (quizAnswers[idx] && oIdx===item.ans ? "bg-emerald-500 text-white" : "bg-white")}>{opt}</button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // Day 5_2: Story fill
+    if (selectedTask.id === 'game5_2') {
+      return (
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-200 space-y-4">
+          <h3 className="text-lg font-bold text-indigo-800">🎮 看圖選詞：小蛇吃東西 (P.74)</h3>
+          <p className="text-sm">早上，小蛇先吃了(蘋果)，肚子變得(圓滾滾)。中午吃了(餅乾)，肚子變得(方方正正)。</p>
+          <div className="flex justify-center gap-4 mt-4">
+            <button onClick={()=>{ handleCorrect(); toggleTaskCompletion(selectedTask.id); }} className="px-6 py-3 bg-indigo-500 text-white font-bold rounded-xl shadow-md">了解了！(確認)</button>
+          </div>
+        </div>
+      );
+    }
+
+    // Day 6: Final Exam (Extended to 7 questions)
     if (selectedTask.id === 'final6') {
       const examQuestions = [
-        { q: "張僧繇是做什麼的？", options: ["大廚師", "大畫家", "大和尚"], ans: 1 },
-        { q: "張僧繇畫出來的東西，大家常常用什麼四字詞語形容？", options: ["維妙維肖", "不知不覺", "目瞪口呆"], ans: 0 },
-        { q: "為了解決屋梁上的鳥糞，他在佛寺畫了什麼？", options: ["兩隻貓", "兩隻老虎", "兩隻老鷹"], ans: 2 },
-        { q: "張僧繇在安樂寺畫了幾條龍？", options: ["兩條", "四條", "六條"], ans: 1 },
-        { q: "小孫子為什麼覺得牆上的龍不可怕？", options: ["因為龍在睡覺", "因為龍沒有眼珠子", "因為龍很小"], ans: 1 },
-        { q: "「一畫上眼珠子，龍就會飛走。」這裡的『一...就...』表示？", options: ["動作接連發生", "一個人和一條龍", "只有一隻眼睛"], ans: 0 },
-        { q: "最後，點了眼珠子的龍發生了什麼事？", options: ["變成畫像掉下來", "奮力飛出牆壁消失了", "跑到水裡游走"], ans: 1 }
+        { q: "小王子最初把飛行員畫的圖看成了什麼？", options: ["一頂帽子", "一條吞了大象的蛇", "一條吞了鯨魚的蛇"], ans: 1 },
+        { q: "飛行員畫的第幾次，小王子才滿意？", options: ["第一隻羊", "第三隻羊", "一個裝著羊的箱子"], ans: 2 },
+        { q: "小王子擔心小羊吃太多草，這隻羊的「胃口」注音是？", options: ["ㄨㄟˋ ㄎㄡˇ", "ㄨㄟ ㄎㄡˇ", "ㄨㄟˋ ㄍㄡˇ"], ans: 0 },
+        { q: "劇本中，飛行員「抓了抓頭」代表他心裡覺得？", options: ["很滿意", "很疑惑", "很生氣"], ans: 1 },
+        { q: "「既然你喜歡，那麼這隻小羊就送給你吧！」『既然』的意思是？", options: ["雖然", "因為", "〜である以上、〜だからには"], ans: 2 },
+        { q: "「是……是嗎？」句中的刪節號（……）表示什麼心情？", options: ["心情起伏不定，說話斷斷續續", "列舉太多東西", "話還沒說完被打斷"], ans: 0 },
+        { q: "飛行員覺得小王子能用什麼來看畫，非常了不起？", options: ["用放大鏡看畫", "用「心」來看畫", "用眼睛來看畫"], ans: 1 }
       ];
 
       const curQ = examQuestions[quizStep] || null;
 
       if (!curQ) {
         return (
-          <div className="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-2xl p-8 text-center border-2 border-emerald-300">
-            <span className="text-5xl">🏆 🐉</span>
-            <h3 className="text-2xl font-bold text-emerald-900 mt-4">恭喜你成為傳說大師！</h3>
-            <p className="text-slate-800 font-medium mt-2">完美通過「畫龍點睛」全數考驗！</p>
-            <button onClick={() => toggleTaskCompletion(selectedTask.id)} className="mt-6 px-6 py-3 bg-emerald-600 text-white font-bold rounded-full shadow-lg hover:bg-emerald-700">領取通關證明</button>
+          <div className="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl p-8 text-center border-2 border-indigo-300">
+            <span className="text-5xl">🏆 👑</span>
+            <h3 className="text-2xl font-bold text-indigo-900 mt-4">恭喜你成為星際飛行員！</h3>
+            <p className="text-slate-800 font-medium mt-2">完美通過第十課「飛行員和小王子」全數考驗！</p>
+            <button onClick={() => toggleTaskCompletion(selectedTask.id)} className="mt-6 px-6 py-3 bg-indigo-600 text-white font-bold rounded-full shadow-lg hover:bg-indigo-700">領取通關證明</button>
           </div>
         );
       }
 
       return (
         <div className="bg-white rounded-2xl p-6 shadow-md border space-y-6">
-          <div className="flex justify-between items-center border-b pb-2"><span className="text-sm font-bold text-emerald-800">{"🎓 畫龍點睛大會考 (" + (quizStep + 1) + " / 7)"}</span></div>
+          <div className="flex justify-between items-center border-b pb-2"><span className="text-sm font-bold text-indigo-800">{"🎓 第十課終極大會考 (" + (quizStep + 1) + " / 7)"}</span></div>
           <p className="text-base font-bold text-slate-800">{curQ.q}</p>
           <div className="space-y-3">
             {curQ.options.map((opt, i) => (
@@ -525,10 +565,10 @@ const App = () => {
                   if (i === curQ.ans) {
                     handleCorrect(); setGameFeedback("⭕ 答對了！"); setTimeout(() => { setQuizStep(p => p + 1); setGameFeedback(""); }, 800);
                   } else { handleWrong(); setGameFeedback("❌ 答錯囉，再仔細想想！"); }
-                }} className="w-full text-left p-4 rounded-xl border hover:border-emerald-500 hover:bg-emerald-50 font-semibold text-slate-700">{opt}</button>
+                }} className="w-full text-left p-4 rounded-xl border hover:border-indigo-500 hover:bg-indigo-50 font-semibold text-slate-700">{opt}</button>
             ))}
           </div>
-          {gameFeedback && <div className="p-3 text-center rounded-xl bg-emerald-100 text-emerald-900 font-bold">{gameFeedback}</div>}
+          {gameFeedback && <div className="p-3 text-center rounded-xl bg-indigo-100 text-indigo-900 font-bold">{gameFeedback}</div>}
         </div>
       );
     }
@@ -537,13 +577,13 @@ const App = () => {
 
   const renderNotebookTask = () => {
     return (
-      <div className="bg-white rounded-2xl p-8 shadow-md border-2 border-teal-300 text-center space-y-6 animate-fade-in">
+      <div className="bg-white rounded-2xl p-8 shadow-md border-2 border-sky-300 text-center space-y-6 animate-fade-in">
         <span className="text-5xl">📓</span>
-        <h3 className="text-2xl font-bold text-teal-900">{selectedTask.text}</h3>
+        <h3 className="text-2xl font-bold text-sky-900">{selectedTask.text}</h3>
         <p className="text-slate-600">這是一個實體任務！請拿出你的筆記本，按照指示手寫完成這項練習。<br/>寫完之後，請家長確認，然後按下方的完成按鈕！</p>
         {!completedTasks[selectedTask.id] ? (
           <button onClick={() => { toggleTaskCompletion(selectedTask.id); updateTutor("太棒了！紙本作業也順利完成了！"); }}
-            className="px-8 py-4 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-full shadow-lg text-lg"
+            className="px-8 py-4 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-full shadow-lg text-lg"
           >✅ 我已經寫完筆記本了！ (完了ボタン)</button>
         ) : (<div className="p-4 bg-emerald-100 text-emerald-800 font-bold rounded-xl border border-emerald-200">🎉 筆記本任務已確認完成！請家長在上面簽名或蓋章喔！</div>)}
       </div>
@@ -554,48 +594,18 @@ const App = () => {
     if (!selectedTask) {
       return (
         <div className="flex flex-col items-center justify-center h-64 text-slate-400 gap-4">
-          <span className="text-6xl">🐉</span>
+          <span className="text-6xl">🚀</span>
           <p className="text-lg font-bold">請從左側選擇今天的學習任務！</p>
-          <p className="text-sm">※ 右下の「開始計時」ボタンを押して、1日30分の学習をスタートしましょう！</p>
         </div>
       );
     }
 
-    if (selectedTask.type === 'read') return renderReadTask(TEXTBOOK_PAGES[selectedTask.target], selectedTask.id);
-    if (selectedTask.type === 'game' || selectedTask.type === 'grammar') return renderInteractiveGame();
-    if (selectedTask.type === 'notebook') return renderNotebookTask();
-
-    if (selectedTask.type === "vocab" || selectedTask.type === "vocab_all") {
-      const targetIndices = selectedTask.type === "vocab_all" ? [0,1,2,3,4,5,6,7,8,9,10,11] : selectedTask.target;
-      return (
-        <div className="bg-white rounded-2xl p-6 shadow-md border border-emerald-100 space-y-6">
-          <div className="flex justify-between items-center border-b pb-4">
-            <h3 className="text-lg font-bold text-emerald-800">✨ 今日生字詞卡</h3>
-            <button onClick={() => toggleTaskCompletion(selectedTask.id)} className={"px-4 py-2 rounded-full text-xs font-bold " + (completedTasks[selectedTask.id] ? "bg-emerald-500 text-white" : "bg-emerald-100 text-emerald-800")}>
-              {completedTasks[selectedTask.id] ? "✅ 詞彙全部記住囉" : "🎴 記住後請點選！"}
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {targetIndices.map((idx) => {
-              const item = VOCABULARY[idx];
-              return (
-                <div key={idx} onClick={() => { setSelectedCard(idx); speakText(item.char, "zh-TW"); }}
-                  className={"p-4 rounded-xl border-2 cursor-pointer hover:-translate-y-1 " + (selectedCard === idx ? "border-emerald-500 bg-emerald-50" : "border-slate-100 bg-white")}
-                >
-                  <div className="flex justify-between items-start">
-                    <span className="text-2xl font-bold text-slate-800">{item.char}</span>
-                    <span className="text-xs font-semibold px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">{"注音: " + item.zhuyin}</span>
-                  </div>
-                  <p className="text-sm text-teal-700 font-bold mt-2 border-t pt-2 border-dashed">{item.meaning}</p>
-                  <div className="mt-2 text-xs text-slate-500 bg-slate-50 p-2 rounded"><p className="italic">{'"' + item.example + '"'}</p></div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      );
+    switch (selectedTask.type) {
+      case 'read': return renderReadTask(TEXTBOOK_PAGES[selectedTask.target], selectedTask.id);
+      case 'game': return renderInteractiveGame();
+      case 'notebook': return renderNotebookTask();
+      default: return <div>請完成任務！</div>;
     }
-    return null;
   };
 
   return (
@@ -603,13 +613,13 @@ const App = () => {
       {/* Sidebar */}
       <nav className="w-full md:w-80 bg-white border-r p-6 overflow-y-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-emerald-900">課文：畫龍點睛</h1>
-          <p className="text-sm text-emerald-600 font-semibold mt-1">六日學習導航系統</p>
+          <h1 className="text-2xl font-bold text-indigo-900">第 10 課：飛行員與小王子</h1>
+          <p className="text-sm text-indigo-600 font-semibold mt-1">六日學習導航系統</p>
         </div>
         <div className="space-y-4">
           {DAILY_PLANS.map((dayPlan) => (
             <button key={dayPlan.day} onClick={() => { setCurrentDay(dayPlan.day); setSelectedTask(null); }}
-              className={"w-full text-left p-4 rounded-xl font-bold transition " + (currentDay === dayPlan.day ? "bg-emerald-600 text-white shadow-lg" : "bg-slate-50 text-slate-700 hover:bg-emerald-50")}
+              className={"w-full text-left p-4 rounded-xl font-bold transition " + (currentDay === dayPlan.day ? "bg-indigo-600 text-white shadow-lg" : "bg-slate-50 text-slate-700 hover:bg-indigo-50")}
             >
               <div className="text-sm mb-1">{dayPlan.title}</div>
             </button>
@@ -620,12 +630,6 @@ const App = () => {
       {/* Main Area */}
       <main className="flex-1 p-6 md:p-10 overflow-y-auto">
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* AI Tutor Message Area */}
-          <div className="bg-gradient-to-r from-emerald-500 to-teal-400 rounded-2xl p-4 text-white shadow-sm flex items-center gap-4">
-            <div className="text-3xl bg-white/20 p-2 rounded-full shadow-inner">👨‍🏫</div>
-            <div className="flex-1"><p className="text-xs font-bold text-emerald-100">AI 老師</p><p className="text-sm font-bold mt-1 leading-relaxed">{tutorMessage}</p></div>
-          </div>
-
           {/* Day Header */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
             <h2 className="text-2xl font-bold text-slate-800">{DAILY_PLANS[currentDay - 1].title}</h2>
@@ -636,31 +640,31 @@ const App = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {DAILY_PLANS[currentDay - 1].tasks.map((task) => (
               <button key={task.id} onClick={() => setSelectedTask(task)}
-                className={"p-4 rounded-xl border-2 text-sm font-bold flex flex-col items-center gap-2 transition " + (completedTasks[task.id] ? "bg-emerald-50 border-emerald-500 text-emerald-800" : "bg-white hover:border-emerald-400")}
+                className={"p-4 rounded-xl border-2 text-sm font-bold flex flex-col items-center gap-2 transition " + (completedTasks[task.id] ? "bg-emerald-50 border-emerald-500 text-emerald-800" : "bg-white hover:border-indigo-400")}
               >
-                <span className="text-2xl">{task.type === 'read' ? '📖' : task.type === 'game' ? '🎮' : task.type === 'notebook' ? '📓' : '🎴'}</span>
+                <span>{task.type === 'read' ? '📖' : task.type === 'game' ? '🎮' : '📓'}</span>
                 {task.text.split(' ')[0]} {completedTasks[task.id] && '✅'}
               </button>
             ))}
           </div>
 
           {/* Task Content */}
-          <div className="pt-4 pb-20">{renderTaskContent()}</div>
+          <div className="pt-4">{renderTaskContent()}</div>
         </div>
       </main>
 
-      {/* Footer Info (Fixed Bottom) - 30 Minutes Timer */}
+      {/* Footer Info (Fixed Bottom) */}
       <div className="fixed bottom-6 right-6 flex flex-col items-end gap-2">
-        <div className="bg-emerald-900 text-white px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-4">
+        <div className="bg-indigo-900 text-white px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-4">
           <span>總分：{score} / 100</span>
-          <button onClick={() => setTimerActive(!timerActive)} className={"text-xs px-3 py-1 rounded-full transition " + (timerActive ? "bg-amber-500" : "bg-emerald-500")}>
-            {timerActive ? "⏳ " + formatTime(studyTime) : "⏱️ 開始計時 (30分)"}
+          <button onClick={() => setTimerActive(!timerActive)} className="text-xs bg-indigo-500 px-3 py-1 rounded-full">
+            {timerActive ? "⏳ " + formatTime(studyTime) : "⏱️ 開始計時"}
           </button>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default App;
 
