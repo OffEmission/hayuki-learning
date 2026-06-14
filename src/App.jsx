@@ -127,7 +127,7 @@ const DAILY_PLANS = [
   }
 ];
 
-export default function App() {
+const App = () => {
   const [currentDay, setCurrentDay] = useState(1);
   const [selectedTask, setSelectedTask] = useState(null);
   const [completedTasks, setCompletedTasks] = useState({});
@@ -660,7 +660,9 @@ export default function App() {
       </div>
     </div>
   );
-}
+};
+
+export default App;
 
 
 ```
