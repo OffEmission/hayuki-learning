@@ -1,4 +1,3 @@
-```react
 import React, { useState, useEffect, useRef } from 'react';
 
 // --- DATA DEFINITION FOR LESSON 10 ---
@@ -113,7 +112,7 @@ const DAILY_PLANS = [
     tasks: [
       { id: "read3", type: "read", text: "閱讀劇本結局 & 大聲全文朗讀", target: 2 },
       { id: "vocab3", type: "vocab", text: "學習生字：寵物、胃口、拇指...", target: [5, 6, 7, 8, 9] },
-      { id: "game3", type: "game", text: "劇本動作解密大挑戰 (P.69)" }
+      { id: "game3", type: "game", text: "劇本動作解密大挑戰" }
     ]
   },
   {
@@ -122,7 +121,7 @@ const DAILY_PLANS = [
     description: "綜合複習本課的重要字詞，並在筆記本上進行寫字特訓！",
     tasks: [
       { id: "vocab4", type: "vocab_all", text: "單字卡總複習 (全 12 個)", target: null },
-      { id: "game4", type: "game", text: "文法重組：「既然... 就...」 (P.73)" },
+      { id: "game4", type: "game", text: "文法重組：「既然... 就...」" },
       { id: "notebook4", type: "notebook", text: "【紙本任務】習作 P.68 國字注音書寫" }
     ]
   },
@@ -131,8 +130,7 @@ const DAILY_PLANS = [
     title: "第五天: 標點符號：刪節號的祕密 💬",
     description: "學習「……」（刪節號）的用法，並練習寫出帶有因果關係的句子。",
     tasks: [
-      { id: "game5_1", type: "game", text: "標點符號測驗：刪節號用法 (P.71)" },
-      { id: "game5_2", type: "game", text: "看圖選詞：小蛇吃東西 (P.74)" },
+      { id: "game5_1", type: "game", text: "標點符號測驗：刪節號用法" },
       { id: "notebook5", type: "notebook", text: "【紙本任務】筆記本造句：既然...就..." }
     ]
   },
@@ -141,13 +139,13 @@ const DAILY_PLANS = [
     title: "第六天: 第十課總複習大會考 🎓",
     description: "把這六天的精華全部複習一遍，向家長展示你的學習成果，領取證書！",
     tasks: [
-      { id: "final6", type: "game", text: "第十課 飛行員大會考 (加量版 7 題)！" },
+      { id: "final6", type: "game", text: "第十課 飛行員大會考 (加量版)！" },
       { id: "notebook6", type: "notebook", text: "【最終任務】給家長看筆記本並領取通關證明！" }
     ]
   }
 ];
 
-function App() {
+export default function App() {
   const [currentDay, setCurrentDay] = useState(1);
   const [selectedTask, setSelectedTask] = useState(null);
   const [completedTasks, setCompletedTasks] = useState({});
@@ -157,6 +155,7 @@ function App() {
   const [tutorMessage, setTutorMessage] = useState("你好！歡迎來到小王子的星球！請從左邊選擇第 1 天開始學習吧！");
   const [speechPitch, setSpeechPitch] = useState(1.1); 
   const [speechRate, setSpeechRate] = useState(0.85); 
+  const [selectedCard, setSelectedCard] = useState(null);
 
   // Audio Reading AI States
   const [currentReadStep, setCurrentReadStep] = useState(0); 
@@ -214,6 +213,65 @@ function App() {
       recognitionRef.current = rec;
     }
   }, [currentReadStep, selectedTask]);
+
+  const playBeep = (freq, duration, type = "sine") => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.type = type;
+      oscillator.frequency.value = freq;
+      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + duration);
+    } catch (e) {
+      console.log("Audio context blocked");
+    }
+  };
+
+  const handleCorrect = () => {
+    playBeep(600, 0.2, "triangle");
+    setTimeout(() => playBeep(800, 0.3, "triangle"), 150);
+  };
+
+  const handleWrong = () => {
+    playBeep(250, 0.4, "sawtooth");
+  };
+
+  const speakText = (text, lang = "zh-TW") => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang;
+      utterance.pitch = speechPitch;
+      utterance.rate = speechRate;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const updateTutor = (msg) => {
+    setTutorMessage(msg);
+    speakText(msg, "zh-TW");
+  };
+
+  const formatTime = (secs) => {
+    const mins = Math.floor(secs / 60);
+    const remainingSecs = secs % 60;
+    return `${mins.toString().padStart(2, '0')}:${remainingSecs.toString().padStart(2, '0')}`;
+  };
+
+  const toggleTaskCompletion = (taskId) => {
+    setCompletedTasks(prev => {
+      const newState = { ...prev, [taskId]: !prev[taskId] };
+      const completedCount = Object.keys(newState).filter(k => newState[k]).length;
+      setScore(completedCount * 15);
+      return newState;
+    });
+    playBeep(523.25, 0.15);
+  };
 
   const evaluateSpeech = async (spoken) => {
     if (!selectedTask || selectedTask.type !== 'read') return;
@@ -281,167 +339,347 @@ function App() {
     updateTutor("太棒了！你順利完成了第 " + (currentReadStep + 1) + " 次全文音讀挑戰！");
   };
 
-  const playBeep = (freq, duration, type = "sine") => {
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-      oscillator.type = type; oscillator.frequency.value = freq;
-      gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-      oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
-      oscillator.start(); oscillator.stop(audioCtx.currentTime + duration);
-    } catch (e) { }
-  };
-
-  const handleCorrect = () => { playBeep(600, 0.2, "triangle"); setTimeout(() => playBeep(800, 0.3, "triangle"), 150); };
-  const handleWrong = () => { playBeep(250, 0.4, "sawtooth"); };
-
   useEffect(() => {
     let interval = null;
     if (timerActive && studyTime > 0) {
-      interval = setInterval(() => setStudyTime((prev) => prev - 1), 1000);
+      interval = setInterval(() => {
+        setStudyTime((prev) => prev - 1);
+      }, 1000);
     } else if (studyTime === 0) {
-      setTimerActive(false); setTutorMessage("太棒了！今天 30 分鐘的學習時間結束囉！"); playBeep(880, 0.8, "sine");
+      setTimerActive(false);
+      setTutorMessage("太棒了！今天 30 分鐘的學習時間結束囉！");
+      playBeep(880, 0.8, "sine");
     }
     return () => clearInterval(interval);
   }, [timerActive, studyTime]);
 
-  const speakText = (text, lang = "zh-TW") => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang; utterance.pitch = speechPitch; utterance.rate = speechRate;
-      const voices = window.speechSynthesis.getVoices();
-      if (lang.startsWith("zh")) {
-        const twVoice = voices.find(v => v.lang.includes("ZH-TW") || v.lang.includes("zh-TW"));
-        if (twVoice) utterance.voice = twVoice;
-      }
-      window.speechSynthesis.speak(utterance);
-    }
-  };
 
-  const formatTime = (secs) => {
-    const mins = Math.floor(secs / 60); const remainingSecs = secs % 60;
-    return mins.toString().padStart(2, '0') + ":" + remainingSecs.toString().padStart(2, '0');
-  };
-
-  const toggleTaskCompletion = (taskId) => {
-    setCompletedTasks(prev => {
-      const newState = { ...prev, [taskId]: !prev[taskId] };
-      const completedCount = Object.keys(newState).filter(k => newState[k]).length;
-      setScore(completedCount * 15); return newState;
-    });
-    playBeep(523.25, 0.15); 
-  };
-
-  const updateTutor = (zhMsg) => {
-    setTutorMessage(zhMsg); speakText(zhMsg, "zh-TW");
-  };
-
-  // --- RENDERING VIEWS ---
   const renderReadTask = (page, taskId) => {
     const allReadCompleted = readProgress.every(v => v === true);
+
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-100 space-y-6 animate-fade-in">
+      <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-100 space-y-6">
         <div className="flex justify-between items-center border-b pb-4">
           <h3 className="text-lg font-bold text-indigo-800">{page.title}</h3>
-          <button onClick={() => { toggleTaskCompletion(taskId); if (!allReadCompleted) setReadProgress([true, true]); }}
-            className={"px-4 py-2 rounded-full text-xs font-bold transition-all " + (completedTasks[taskId] ? "bg-emerald-100 text-emerald-800" : "bg-indigo-100 text-indigo-800 hover:bg-indigo-200")}
+          <button 
+            onClick={() => {
+              toggleTaskCompletion(taskId);
+              if (!allReadCompleted) setReadProgress([true, true]);
+            }}
+            className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${completedTasks[taskId] ? 'bg-emerald-100 text-emerald-800' : 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200'}`}
           >
             {completedTasks[taskId] ? "✅ 任務完成" : "📖 全文音讀完畢請點此！"}
           </button>
         </div>
-        <div className="space-y-6">
+
+        <div className="space-y-4">
           {page.paragraphs.map((para, pIdx) => (
-            <div key={pIdx} className="bg-indigo-50/40 p-4 rounded-xl border border-indigo-100/50 space-y-1">
-              <p className="text-lg font-bold text-slate-800 tracking-wide leading-relaxed">{para.chinese}</p>
-              <p className="text-xs font-semibold text-sky-800 tracking-wider leading-relaxed bg-sky-50/50 p-1.5 rounded border border-sky-100/30 font-mono">注音: {para.zhuyin}</p>
+            <div key={pIdx} className="bg-indigo-50 p-4 rounded-xl border border-indigo-100 space-y-2">
+              <p className="text-lg font-bold text-slate-800 leading-relaxed">{para.chinese}</p>
+              <p className="text-xs font-semibold text-sky-800 font-mono bg-white p-1.5 rounded">{para.zhuyin}</p>
             </div>
           ))}
-          <div className="mt-4"><button onClick={() => speakText(page.chinese, "zh-TW")} className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-semibold shadow-sm">🔊 聽課文全文朗讀</button></div>
+          <button 
+            onClick={() => speakText(page.chinese, "zh-TW")}
+            className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-semibold flex items-center gap-1 shadow-sm"
+          >
+            🔊 聽課文全文朗讀
+          </button>
         </div>
 
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border-2 border-indigo-200 space-y-4">
-          <div className="flex items-center gap-2"><span className="text-2xl">🎤</span>
-            <div><h4 className="font-bold text-indigo-800 text-sm">AI 語音音讀挑戰：大聲跟讀全文 2 次</h4><p className="text-xs text-slate-600">讀完後點選「結束並評分」。</p></div>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🎤</span>
+            <div>
+              <h4 className="font-bold text-indigo-800 text-sm">AI 語音音讀挑戰：大聲跟讀課文 2 次</h4>
+              <p className="text-xs text-slate-600">按下開始後大聲朗讀，結束時 AI 會給予評分。</p>
+            </div>
           </div>
+
           <div className="grid grid-cols-2 gap-2">
             {[0, 1].map((idx) => (
-              <button key={idx} onClick={() => { setCurrentReadStep(idx); setSpokenText(""); setMatchingScore(null); setSpeechError(""); setHasEvaluated(false); }}
-                className={"py-2 px-3 rounded-xl text-xs font-bold transition-all " + (currentReadStep === idx ? "bg-indigo-500 text-white" : "bg-white text-slate-600 border") + " flex justify-center gap-1.5"}
-              ><span>第 {idx + 1} 次朗讀</span>{readProgress[idx] ? <span className="text-emerald-500">✅</span> : <span>○</span>}</button>
+              <button
+                key={idx}
+                onClick={() => { setCurrentReadStep(idx); setSpokenText(""); setMatchingScore(null); setSpeechError(""); setHasEvaluated(false); }}
+                className={`py-2 px-3 rounded-xl text-xs font-bold transition-all ${currentReadStep === idx ? 'bg-indigo-500 text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200'} flex items-center justify-center gap-1.5`}
+              >
+                <span>第 {idx + 1} 次朗讀</span>
+                {readProgress[idx] ? <span className="text-emerald-500">✅</span> : <span className="text-slate-300">○</span>}
+              </button>
             ))}
           </div>
+
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            {!isListening ? (<button onClick={startListening} className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-600 font-bold text-sm text-white rounded-xl shadow-md">🎤 開始朗讀</button>) : (<button onClick={stopListeningAndEvaluate} className="flex-1 py-3 bg-red-500 hover:bg-red-600 font-bold text-sm text-white rounded-xl shadow-md animate-pulse">🛑 結束並評分</button>)}
-            <button onClick={simulateCorrectReading} className="py-3 px-4 rounded-xl bg-slate-200 text-slate-700 font-semibold text-xs">👌 手動驗證</button>
+            {!isListening ? (
+              <button onClick={startListening} className="flex-1 py-3 px-4 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-bold text-sm text-white flex items-center justify-center gap-2 shadow-md">
+                🎤 開始朗讀
+              </button>
+            ) : (
+              <button onClick={stopListeningAndEvaluate} className="flex-1 py-3 px-4 rounded-xl bg-red-500 hover:bg-red-600 font-bold text-sm text-white flex items-center justify-center gap-2 shadow-md animate-pulse">
+                🛑 結束並評分
+              </button>
+            )}
+            <button onClick={simulateCorrectReading} className="py-3 px-4 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs transition-colors">
+              👌 手動驗證過關
+            </button>
           </div>
-          {hasEvaluated && (spokenText || matchingScore !== null || speechError) && (
-            <div className="bg-white p-4 rounded-xl border text-sm">
-              {speechError ? (<p className="text-red-500">{speechError}</p>) : (<>
-                {spokenText && (<div className="text-slate-700 font-medium">🎧 辨識結果： <span className="text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded block">{spokenText}</span></div>)}
-                {matchingScore !== null && (<div className="flex items-center gap-2 pt-2"><span className="font-semibold">🎯 相似度：</span><span className={"text-lg font-bold " + (matchingScore >= 35 ? "text-emerald-600" : "text-red-500")}>{matchingScore}%</span></div>)}
-              </>)}
+
+          {hasEvaluated && (
+            <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-2 text-sm">
+              {speechError ? <p className="text-red-500 font-semibold text-xs">{speechError}</p> : (
+                <>
+                  {spokenText && <div className="text-slate-700 font-medium">辨識結果： <span className="text-indigo-600 font-bold block mt-1">{spokenText}</span></div>}
+                  {matchingScore !== null && (
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="font-semibold">相似度：</span>
+                      <span className={`text-lg font-bold ${matchingScore >= 35 ? 'text-emerald-600' : 'text-red-500'}`}>{matchingScore}%</span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>
-        <div className="bg-slate-50 p-4 rounded-xl relative border"><span className="absolute top-2 right-2 text-xs bg-slate-200 px-2 py-1 rounded">日本語訳</span><p className="text-sm text-slate-600 pt-2 whitespace-pre-line">{page.japanese}</p></div>
+
+        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+          <span className="text-xs bg-slate-200 text-slate-800 px-2 py-1 rounded block mb-2 w-max">日文對照翻譯</span>
+          <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{page.japanese}</p>
+        </div>
       </div>
     );
   };
 
   const renderInteractiveGame = () => {
-    if (selectedTask.id === 'game1') {
+    // Day 1
+    if (currentDay === 1 && selectedTask.id === "game1") {
       return (
-        <div className="bg-white rounded-2xl p-6 shadow-md border-2 border-indigo-200 space-y-6">
-          <h3 className="text-lg font-bold text-indigo-800">🎮 小王子的奇妙圖畫測驗</h3>
-          <div className="space-y-4">
-            <div className="bg-slate-50 p-4 rounded-xl border">
-              <p className="font-bold text-slate-800 mb-2">Q1: 飛行員猜小王子的圖畫是哪一種物品？</p>
-              <div className="flex gap-2">
-                <button onClick={()=>handleWrong()} className="px-4 py-2 bg-white border rounded hover:bg-slate-100 font-bold">一座山</button>
-                <button onClick={()=>{handleCorrect(); setQuizAnswers(p=>({...p, q1:true}));}} className={"px-4 py-2 border rounded font-bold " + (quizAnswers.q1 ? "bg-emerald-500 text-white" : "bg-white")}>一頂帽子</button>
-              </div>
-            </div>
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-100 space-y-4">
+          <h3 className="text-lg font-bold text-indigo-800">🎮 第一天挑戰：小王子的奇妙圖畫</h3>
+          <p className="text-sm text-slate-600">飛行員畫的這幅圖，大人都說它是什麼？小王子又說它是什麼？</p>
+          <div className="flex flex-col gap-3 mt-4">
+            <button onClick={() => { handleWrong(); setGameFeedback("這是大人的答案喔！"); }} className="p-3 border rounded-xl hover:bg-slate-50 font-bold">🎩 大家都說這是一頂帽子</button>
+            <button onClick={() => { handleCorrect(); toggleTaskCompletion(selectedTask.id); setGameFeedback("答對了！小王子看出這是一條吞了象的蛇！"); }} className="p-3 border rounded-xl hover:bg-indigo-50 border-indigo-200 font-bold text-indigo-700">🐘 小王子說這是一條吞了大象的蛇</button>
+          </div>
+          {gameFeedback && <div className="mt-4 p-3 bg-indigo-50 text-indigo-800 rounded-lg text-center font-bold text-sm">{gameFeedback}</div>}
+        </div>
+      );
+    }
+    // Day 2
+    if (currentDay === 2 && selectedTask.id === "game2") {
+      return (
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-100 space-y-4">
+          <h3 className="text-lg font-bold text-indigo-800">🎮 第二天挑戰：挑剔的小王子</h3>
+          <p className="text-sm text-slate-600">小王子對飛行員畫的前三隻羊都不滿意，理由是什麼呢？點選正確的缺點！</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {['太老了', '是長大的公羊', '生病了'].map(reason => (
+              <button 
+                key={reason} 
+                onClick={() => {
+                  setQuizAnswers(prev => ({...prev, [reason]: true}));
+                  handleCorrect();
+                  if (Object.keys(quizAnswers).length === 2) toggleTaskCompletion(selectedTask.id);
+                }}
+                className={`p-4 rounded-xl border font-bold ${quizAnswers[reason] ? 'bg-emerald-500 text-white' : 'hover:bg-slate-50'}`}
+              >
+                {reason}
+              </button>
+            ))}
           </div>
         </div>
       );
     }
-    // ... (其他游戏逻辑)
-    return <div className="p-4 text-center">遊戲內容載入中...</div>;
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row">
-      <nav className="w-full md:w-80 bg-white border-r p-6 overflow-y-auto">
-        <h1 className="text-2xl font-bold text-indigo-900">第 10 課：飛行員與小王子</h1>
-        <div className="mt-8 space-y-4">
-          {DAILY_PLANS.map((dayPlan) => (
-            <button key={dayPlan.day} onClick={() => { setCurrentDay(dayPlan.day); setSelectedTask(null); }}
-              className={"w-full text-left p-4 rounded-xl font-bold transition " + (currentDay === dayPlan.day ? "bg-indigo-600 text-white" : "bg-slate-50")}
-            >
-              {dayPlan.title}
-            </button>
-          ))}
+    // Day 3
+    if (currentDay === 3 && selectedTask.id === "game3") {
+      return (
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-100 space-y-4">
+          <h3 className="text-lg font-bold text-indigo-800">🎮 第三天挑戰：動作解密</h3>
+          <p className="text-sm text-slate-600">「豎起大拇指」在劇本中代表什麼意思？</p>
+          <button onClick={() => { handleCorrect(); toggleTaskCompletion(selectedTask.id); setGameFeedback("答對了！代表稱讚小王子很了不起！"); }} className="w-full p-3 border rounded-xl hover:bg-indigo-50 font-bold">👍 稱讚對方很棒、了不起</button>
+          <button onClick={() => { handleWrong(); setGameFeedback("不對喔，再想想看。"); }} className="w-full p-3 border rounded-xl hover:bg-slate-50 font-bold">😠 表示生氣</button>
+          {gameFeedback && <div className="mt-4 p-3 bg-indigo-50 text-indigo-800 rounded-lg text-center font-bold text-sm">{gameFeedback}</div>}
         </div>
-      </nav>
-      <main className="flex-1 p-6 md:p-10 overflow-y-auto">
-        <div className="max-w-4xl mx-auto space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {DAILY_PLANS[currentDay - 1].tasks.map((task) => (
-              <button key={task.id} onClick={() => setSelectedTask(task)} className="p-4 rounded-xl border bg-white hover:border-indigo-400">
-                {task.text.split(' ')[0]}
+      );
+    }
+    // Day 4 文法重組
+    if (currentDay === 4 && selectedTask.id === "game4") {
+      return (
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-100 space-y-4">
+          <h3 className="text-lg font-bold text-indigo-800">🎮 第四天挑戰：文法重組</h3>
+          <p className="text-sm">點選卡片重組句子：「既然你喜歡，那麼這隻小羊就送給你吧！」</p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {["既然你喜歡，", "那麼", "這隻小羊", "就送給你吧！"].map((word, i) => (
+              <button 
+                key={i} onClick={() => {
+                  handleCorrect();
+                  if (i === 3) { toggleTaskCompletion(selectedTask.id); updateTutor("太棒了！重組成功！"); }
+                }}
+                className="px-4 py-2 border border-indigo-200 rounded-lg font-bold hover:bg-indigo-50"
+              >
+                {word}
               </button>
             ))}
           </div>
-          <div>{renderTaskContent()}</div>
+        </div>
+      );
+    }
+    // Day 6 Final
+    if (currentDay === 6 && selectedTask.id === "final6") {
+      return (
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-100 text-center space-y-4">
+          <h3 className="text-xl font-bold text-indigo-800">🎓 總複習大會考</h3>
+          <p>準備好接受挑戰了嗎？</p>
+          <button 
+            onClick={() => { handleCorrect(); toggleTaskCompletion(selectedTask.id); setGameFeedback("🎉 恭喜你完成所有挑戰，順利通關星の王子さま第十課！"); }}
+            className="px-6 py-3 bg-yellow-500 text-white font-bold rounded-full shadow-md hover:bg-yellow-600"
+          >
+            完成考試領取證書
+          </button>
+          {gameFeedback && <p className="text-emerald-600 font-bold text-lg mt-4">{gameFeedback}</p>}
+        </div>
+      );
+    }
+
+    // Default for Notebook or unhandled
+    return (
+      <div className="bg-white rounded-2xl p-6 shadow-md border border-slate-200 flex flex-col items-center">
+        <span className="text-4xl mb-4">📝</span>
+        <h3 className="font-bold text-lg mb-2">{selectedTask.text}</h3>
+        <p className="text-slate-600 mb-4">請在紙本習作或筆記本上完成這項任務，完成後點選下方按鈕。</p>
+        <button onClick={() => toggleTaskCompletion(selectedTask.id)} className="px-6 py-2 bg-emerald-500 text-white font-bold rounded-full">
+          {completedTasks[selectedTask.id] ? "✅ 已標記完成" : "標記為完成"}
+        </button>
+      </div>
+    );
+  };
+
+  const renderTaskContent = () => {
+    if (!selectedTask) {
+      return (
+        <div className="flex flex-col items-center justify-center p-8 text-center bg-white rounded-2xl shadow-sm border border-indigo-100">
+          <span className="text-6xl mb-4">🪐</span>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">請選擇今天的學習任務！</h3>
+          <p className="text-slate-600 max-w-md text-sm mb-6">點選左側清單開始學習。別忘了啟動 30 分鐘計時器喔！</p>
+          <button 
+            onClick={() => { setTimerActive(true); updateTutor("那我們開始 30 分鐘的學習吧！加油！"); }}
+            className={`px-6 py-3 rounded-full font-bold text-white shadow-md transition-transform ${timerActive ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+          >
+            {timerActive ? "⏱️ 計時器運行中..." : "⏱️ 開始 30 分鐘學習！"}
+          </button>
+        </div>
+      );
+    }
+
+    if (selectedTask.type === "read") return renderReadTask(TEXTBOOK_PAGES[selectedTask.target], selectedTask.id);
+    
+    if (selectedTask.type === "vocab" || selectedTask.type === "vocab_all") {
+      const targetIndices = selectedTask.type === "vocab_all" ? [0,1,2,3,4,5,6,7,8,9,10,11] : selectedTask.target;
+      return (
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-indigo-100 space-y-6">
+          <div className="flex justify-between items-center border-b pb-4">
+            <h3 className="text-lg font-bold text-indigo-800">✨ 今日生字詞卡</h3>
+            <button onClick={() => toggleTaskCompletion(selectedTask.id)} className="px-4 py-2 bg-indigo-100 text-indigo-800 font-bold rounded-full text-xs">
+              {completedTasks[selectedTask.id] ? "✅ 詞彙全部記住囉" : "🎴 記住後請點選！"}
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {targetIndices.map((idx) => {
+              const item = VOCABULARY[idx];
+              return (
+                <div key={idx} onClick={() => { setSelectedCard(idx); speakText(item.char, "zh-TW"); }} className={`p-4 rounded-xl border-2 cursor-pointer ${selectedCard === idx ? 'border-indigo-500 bg-indigo-50' : 'border-slate-100 bg-white'}`}>
+                  <div className="flex justify-between">
+                    <span className="text-2xl font-bold">{item.char}</span>
+                    <span className="text-xs font-semibold px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded-full">{item.zhuyin}</span>
+                  </div>
+                  <p className="text-sm font-semibold mt-3 text-emerald-700">日文釋義: {item.meaning}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    return renderInteractiveGame();
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center flex-wrap gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🌹</span>
+            <div>
+              <h1 className="text-lg font-extrabold text-indigo-700">星の王子さま 第十課</h1>
+              <p className="text-xs text-slate-500">國小精華家庭教師互動程式 (6日コース)</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-indigo-50 px-3 py-1.5 rounded-full border border-indigo-200">
+              <span className="font-mono font-bold text-indigo-700">{formatTime(studyTime)}</span>
+              <button onClick={() => setTimerActive(!timerActive)} className="text-xs font-bold px-2 py-1 rounded bg-indigo-500 text-white">
+                {timerActive ? "暫停" : "開始"}
+              </button>
+            </div>
+            <div className="bg-yellow-50 text-yellow-800 px-3 py-1.5 rounded-full font-bold text-sm">⭐ 得分: {score}</div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto w-full px-4 py-4">
+        <div className="bg-gradient-to-r from-indigo-500 to-blue-500 rounded-2xl p-4 text-white shadow-sm flex items-center gap-4">
+          <div className="text-3xl bg-white/20 p-2 rounded-full">👨‍🏫</div>
+          <div className="flex-1">
+            <p className="text-xs font-bold uppercase text-indigo-100">AI 老師的溫馨提示</p>
+            <p className="text-sm font-bold mt-1">{tutorMessage}</p>
+          </div>
+        </div>
+      </div>
+
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+            <h2 className="font-bold text-slate-800 mb-3 text-sm">📅 六天學習進度</h2>
+            <div className="grid grid-cols-3 gap-2">
+              {[1, 2, 3, 4, 5, 6].map((d) => (
+                <button
+                  key={d}
+                  onClick={() => {
+                    setCurrentDay(d); setSelectedTask(null); setGameFeedback("");
+                    setReadProgress([false, false]); setCurrentReadStep(0);
+                    updateTutor(`開始第 ${d} 天的學習吧！`);
+                  }}
+                  className={`py-3 rounded-xl font-bold flex flex-col items-center transition-all ${currentDay === d ? 'bg-indigo-500 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+                >
+                  <span className="text-xs">Day {d}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
+            <div>
+              <h3 className="font-bold text-slate-800 text-base">{DAILY_PLANS[currentDay - 1].title}</h3>
+              <p className="text-xs text-slate-600 mt-1">{DAILY_PLANS[currentDay - 1].description}</p>
+            </div>
+            <div className="border-t pt-4 space-y-2">
+              {DAILY_PLANS[currentDay - 1].tasks.map((task) => (
+                <div 
+                  key={task.id}
+                  className={`p-3 rounded-xl border flex items-center gap-2 cursor-pointer ${selectedTask?.id === task.id ? 'border-indigo-500 bg-indigo-50' : 'border-slate-100 hover:border-slate-300'}`}
+                  onClick={() => { setSelectedTask(task); setGameFeedback(""); }}
+                >
+                  <input type="checkbox" checked={completedTasks[task.id] || false} readOnly className="rounded text-indigo-500" />
+                  <span className={`text-xs font-semibold ${completedTasks[task.id] ? 'line-through text-slate-400' : 'text-slate-700'}`}>{task.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-8">
+          {renderTaskContent()}
         </div>
       </main>
     </div>
   );
 }
-
-export default App;
-
-```
